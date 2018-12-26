@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="《Google C++风格指南》读书笔记近日开始看一个C++项目，看着某些代码风格非常不爽，于是乎三番两次对照Google C++的风格，生怕给带歪了。慢慢地就有了把这个中文译文给通读一遍的冲动。顺便记下笔记，算是沉淀知识，方便自己日后快速查阅，如果侥幸能够帮助到其他人，那真是太好了。 头文件 一个source文件要有一个与之对应的header文件，以此来实现接口实现分离  每个头文件必须要有头文">
+<meta name="keywords" content="c++,notes">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《Google C++风格指南》读书笔记">
+<meta property="og:url" content="http://yoursite.com/2018/07/26/google-cpp-style/index.html">
+<meta property="og:site_name" content="lylex&#39;s humble Home">
+<meta property="og:description" content="《Google C++风格指南》读书笔记近日开始看一个C++项目，看着某些代码风格非常不爽，于是乎三番两次对照Google C++的风格，生怕给带歪了。慢慢地就有了把这个中文译文给通读一遍的冲动。顺便记下笔记，算是沉淀知识，方便自己日后快速查阅，如果侥幸能够帮助到其他人，那真是太好了。 头文件 一个source文件要有一个与之对应的header文件，以此来实现接口实现分离  每个头文件必须要有头文">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-08-02T08:29:57.268Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《Google C++风格指南》读书笔记">
+<meta name="twitter:description" content="《Google C++风格指南》读书笔记近日开始看一个C++项目，看着某些代码风格非常不爽，于是乎三番两次对照Google C++的风格，生怕给带歪了。慢慢地就有了把这个中文译文给通读一遍的冲动。顺便记下笔记，算是沉淀知识，方便自己日后快速查阅，如果侥幸能够帮助到其他人，那真是太好了。 头文件 一个source文件要有一个与之对应的header文件，以此来实现接口实现分离  每个头文件必须要有头文">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/26/google-cpp-style/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>《Google C++风格指南》读书笔记 | lylex's humble Home</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lylex's humble Home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/26/google-cpp-style/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="lylex">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lylex's humble Home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《Google C++风格指南》读书笔记
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-07-26 19:48:16" itemprop="dateCreated datePublished" datetime="2018-07-26T19:48:16-06:00">2018-07-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-08-02 02:29:57" itemprop="dateModified" datetime="2018-08-02T02:29:57-06:00">2018-08-02</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="《Google-C-风格指南》读书笔记"><a href="#《Google-C-风格指南》读书笔记" class="headerlink" title="《Google C++风格指南》读书笔记"></a>《Google C++风格指南》读书笔记</h2><p>近日开始看一个C++项目，看着某些代码风格非常不爽，于是乎三番两次对照Google C++的风格，生怕给带歪了。慢慢地就有了把这个中文译文给通读一遍的冲动。顺便记下笔记，算是沉淀知识，方便自己日后快速查阅，如果侥幸能够帮助到其他人，那真是太好了。</p>
+<h1 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/headers/" target="_blank" rel="noopener">头文件</a></h1><ol>
+<li><p>一个source文件要有一个与之对应的header文件，以此来实现接口实现分离</p>
+</li>
+<li><p>每个头文件必须要有头文件保护，避免重复包含</p>
+<blockquote>
+<p>举个例子，假设foo项目中foo/src/bar/baz.h文件，那么这个头文件应当这么写：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> FOO_BAR_BAZ_H_</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FOO_BAR_BAZ_H_</span></span><br><span class="line">...</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">// FOO_BAR_BAZ_H_</span></span></span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>不要使用前置声明</p>
+<blockquote>
+<p>所谓前置声明就是只有申明没有定义的类、函数、模板</p>
+</blockquote>
+</li>
+<li><p>不要内联超过10行的函数</p>
+<blockquote>
+<p>内联函数会被编译器展开，滥用导致变慢，虚函数和递归函数即使内联也不会生效；一般来讲，定义在头文件类定义内的函数一般都会被内联，因此，注意不要在类定义中写过长的函数</p>
+</blockquote>
+</li>
+<li><p>头文件包含顺序为：直接相关的文件，C库，C++库，其他库的.h，本项目内的.h</p>
+<blockquote>
+<p>所谓直接相关文件，就比如说<code>dir/foo.cc</code>中，foo.h就是直接相关的;<br>举例来说, google-awesome-project/src/foo/internal/fooserver.cc 的包含次序如下:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"foo/public/fooserver.h"</span> <span class="comment">// 优先位置</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;hash_map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"base/basictypes.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"base/commandlineflags.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"foo/public/bar.h"</span></span></span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>文件中所有用到的头文件都要被显式包含</p>
+<blockquote>
+<p>比如要用到<code>bar.h</code>中的一些符号，而已经包含的<code>foo.h</code>已经包含了<code>bar.h</code>，也得在文件中显式包含<code>bar.h</code></p>
+</blockquote>
+</li>
+</ol>
+<h1 id="作用域"><a href="#作用域" class="headerlink" title="作用域"></a><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/scoping/" target="_blank" rel="noopener">作用域</a></h1><ol>
+<li><p>禁止使用using指示用于自定义命名空间，禁止使用内联命名空间，禁止使用命名空间别名</p>
+</li>
+<li><p>命名空间定义最后注释中给出其名字，内部定义不需要使用缩进</p>
+<blockquote>
+<p>例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// .h 文件</span></span><br><span class="line"><span class="keyword">namespace</span> mynamespace &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 所有声明都置于命名空间中</span></span><br><span class="line"><span class="comment">// 注意不要使用缩进</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Foo</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&#125; <span class="comment">// namespace mynamespace</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// .cc 文件</span></span><br><span class="line"><span class="keyword">namespace</span> mynamespace &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数定义都置于命名空间中</span></span><br><span class="line"><span class="keyword">void</span> MyClass::Foo() &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125; <span class="comment">// namespace mynamespace</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>在<code>.cc</code>文件中定义一个不需要被外部引用的变量时，可以将它们放在匿名命名空间或声明为<code>static</code>。但是不要在<code>.h</code>文件中这么做。</p>
+<blockquote>
+<p>所有置于匿名命名空间的声明都具有内部链接性，函数和变量可以经由声明为 static 拥有内部链接性，这意味着你在这个文件中声明的这些标识符都不能在另一个文件中被访问。匿名命名空间说白了就是文件作用域。</p>
+</blockquote>
+</li>
+<li><p>使用静态成员函数或命名空间内的非成员函数, 尽量不要用裸的全局函数. </p>
+</li>
+<li><p>相比单纯为了封装若干不共享任何静态数据的静态成员函数而创建类, 不如使用命名空间</p>
+<blockquote>
+<p>例如，对于<code>myproject/foo_bar.h</code>，应当使用如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> myproject &#123;</span><br><span class="line"><span class="keyword">namespace</span> foo_bar &#123;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Function1</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Function2</span><span class="params">()</span></span>;</span><br><span class="line">&#125;  <span class="comment">// namespace foo_bar</span></span><br><span class="line">&#125;  <span class="comment">// namespace myproject</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<blockquote>
+<p>而不是这样</p>
+ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> myproject &#123;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FooBar</span> &#123;</span></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Function1</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Function2</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line">&#125;  <span class="comment">// namespace myproject</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>将函数变量尽可能置于最小作用域内, 并在变量声明时进行初始化，离第一次使用越近越好</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i;</span><br><span class="line">i = f(); <span class="comment">// 坏——初始化和声明分离</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> j = g(); <span class="comment">// 好——初始化时声明</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">v.push_back(<span class="number">1</span>); <span class="comment">// 用花括号初始化更好</span></span><br><span class="line">v.push_back(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v = &#123;<span class="number">1</span>, <span class="number">2</span>&#125;; <span class="comment">// 好——v 一开始就初始化</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>属于<code>if</code>, <code>while</code>和<code>for</code>语句的变量应当在这些语句中正常地声明，以限制其作用域最小。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="keyword">const</span> <span class="keyword">char</span>* p = <span class="built_in">strchr</span>(str, <span class="string">'/'</span>)) str = p + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>禁止定义静态生存周期非POD变量</p>
+<blockquote>
+<p>静态生存周期变量包括：全局变量, 静态变量, 静态类成员变量, 以及函数静态变量, 都必须是原生数据类型 (POD : Plain Old Data): 即 int, char 和 float, 以及 POD 类型的指针、数组和结构体，即完全禁用 vector (使用 C 数组替代) 和 string (使用 const char [])。</p>
+</blockquote>
+</li>
+<li><p>多线程中的全局变量 (含静态成员变量) 不要使用 class 类型 (含 STL 容器), 避免不明确行为导致的 bug</p>
+</li>
+</ol>
+<h1 id="类"><a href="#类" class="headerlink" title="类"></a><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/classes/" target="_blank" rel="noopener">类</a></h1><ol>
+<li><p>不要在构造函数中调用虚函数，也不要在无法报出错误时候进行可能失败的初始化。</p>
+<blockquote>
+<p>如果在构造函数内调用了自身的虚函数, 这类调用是不会重定向到子类的虚函数实现. 即使当前没有子类化实现, 将来仍是隐患。构造函数很难上报错误。</p>
+</blockquote>
+</li>
+<li><p>不要定义隐式类型转换. 对于转换运算符和单参数构造函数, 请使用<code>explicit</code>关键字。</p>
+</li>
+<li><p>不要使用隐式产生的拷贝构造函数和移动构造函数，禁用他们或者给出定义。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MyClass is neither copyable nor movable. 实施了禁用</span></span><br><span class="line">MyClass(<span class="keyword">const</span> MyClass&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">MyClass&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> MyClass&amp;) = <span class="keyword">delete</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>仅当只有数据成员时使用<code>struct</code>, 其它一概使用<code>class</code>.</p>
+</li>
+<li><p>所有继承必须是<code>public</code>的, 如果你的类有虚函数, 则析构函数也应该为虚函数.</p>
+</li>
+<li><p>优先考虑组合而非继承</p>
+<blockquote>
+<p>组合 &gt; 实现继承 &gt; 接口继承 &gt; 私有继承</p>
+</blockquote>
+</li>
+<li><p>避免使用多重继承</p>
+<blockquote>
+<p>只有当所有父类除第一个外都是”纯接口类”时, 才允许使用多重继承. 为确保它们是纯接口, 这些类必须以<code>Interface</code>为后缀.</p>
+</blockquote>
+</li>
+<li><p>满足以下条件的类以<code>Interface</code>为后缀结尾</p>
+<ul>
+<li>只有纯虚函数 (“=0”) 和静态函数 (除了下文提到的析构函数).</li>
+<li>没有非静态数据成员.</li>
+<li>没有定义任何构造函数. 如果有, 也不能带有参数, 并且必须为 protected.</li>
+<li>如果它是一个子类, 也只能从满足上述条件并以 Interface 为后缀的类继承.</li>
+</ul>
+</li>
+<li><p>尽量不要重载运算符</p>
+</li>
+<li><p><strong>所有</strong>数据成员声明为<code>private</code>, 除非是<code>static const</code>类型成员</p>
+</li>
+<li><p>类定义的顺序为：<code>public:</code>, <code>protected:</code>, <code>private:</code></p>
+</li>
+</ol>
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/functions/" target="_blank" rel="noopener">函数</a></h1><ol>
+<li><p>函数的参数顺序为: 输入参数在先, 后跟输出参数.</p>
+</li>
+<li><p>函数要尽量简短，最好不要超过40行</p>
+</li>
+<li><p>所有按引用传递的参数必须加上<code>const</code>.</p>
+ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 输入参数是值参或 const 引用, 输出参数为指针</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Foo</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span> &amp;in, <span class="built_in">string</span> *out)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>只允许在非虚函数中使用缺省参数, 且必须保证缺省参数的值始终一致. 一般更推荐函数重载。</p>
+<blockquote>
+<p>严格点讲，应当禁止使用缺省函数参数，尽可能使用函数重载</p>
+</blockquote>
+</li>
+</ol>
+<h1 id="来自Google的奇技"><a href="#来自Google的奇技" class="headerlink" title="来自Google的奇技"></a><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/magic/" target="_blank" rel="noopener">来自Google的奇技</a></h1><ol>
+<li><p>动态分配出的对象最好有单一且固定的所有主, 并通过智能指针传递所有权.</p>
+<blockquote>
+<p><code>std::unique_ptr</code>用来表示动态分配出的对象的独一无二的所有权; 当<code>std::unique_ptr</code>离开作用域时, 对象就会被销毁.<code>std::unique_ptr</code>不能被复制, 但可以把它移动给新所有主.<br><code>std::shared_ptr</code>同样表示动态分配对象的所有权, 但可以被共享, 也可以被复制<br>不要使用 std::auto_ptr, 使用 std::unique_ptr 代替它</p>
+</blockquote>
+ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Foo&gt; FooFactory();</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FooConsumer</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Foo&gt; ptr)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用<a href="http://github.com/google/styleguide/blob/gh-pages/cpplint/cpplint.py" target="_blank" rel="noopener"><code>cpplint.py</code></a>检查风格错误.</p>
+</li>
+</ol>
+<h1 id="其他-C-特性"><a href="#其他-C-特性" class="headerlink" title="其他 C++ 特性"></a><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/others/" target="_blank" rel="noopener">其他 C++ 特性</a></h1><ol>
+<li><p>所有按引用传递的参数必须加上<code>const</code></p>
+<blockquote>
+<p>在C语言中, 如果函数需要修改变量的值, 参数必须为指针, 如<code>int foo(int *pval)</code>. 在 C++ 中, 函数还可以声明引用参数:<code>int foo(int &amp;val)</code></p>
+</blockquote>
+</li>
+<li><p>只在定义移动构造函数与移动赋值操作时使用右值引用.</p>
+</li>
+</ol>
+<ol>
+<li><p>我们不允许使用变长数组和<code>alloca()</code></p>
+<blockquote>
+<p>改用更安全的分配器（allocator），例如<code>std::vector</code>或<code>std::unique_ptr&lt;T[]&gt;</code></p>
+</blockquote>
+</li>
+<li><p>合理使用友元</p>
+<ul>
+<li>将<code>FooBuilder</code>声明为<code>Foo</code>的友元</li>
+<li>将一个单元测试类声明成待测类的友元</li>
+</ul>
+</li>
+<li><p>禁止使用异常</p>
+<blockquote>
+<p>这是Google自己的偏好</p>
+</blockquote>
+</li>
+<li><p>禁止使用RTTI</p>
+<blockquote>
+<p>在单元测试中可以使用 RTTI, 但是在其他代码中请尽量避免. </p>
+</blockquote>
+</li>
+<li><p>使用C++风格的类型转换方式，如<code>static_cast&lt;&gt;()</code>，不要使用<code>int y = (int)x</code>或<code>int y = int(x)</code>等转换方式</p>
+<ul>
+<li>用<code>static_cast</code>替代C风格的值转换, 或某个类指针需要明确的向上转换为父类指针时.</li>
+<li>用<code>const_cast</code>去掉<code>const</code>限定符.</li>
+<li>用<code>reinterpret_cast</code>指针类型和整型或其它指针之间进行不安全的相互转换. 仅在你对所做一切了然于心时使用.</li>
+</ul>
+</li>
+<li><p>不要使用流, 除非是日志接口需要. 使用 printf 之类的代替</p>
+</li>
+<li><p>对于迭代器和其他模板对象使用前缀形式<code>(++i)</code>的自增, 自减运算符</p>
+</li>
+<li><p>尽可能地使用<code>const</code>，特别是如下情况</p>
+<ul>
+<li>函数不会修改传你入的引用或指针类型参数, 该参数应声明为<code>const</code></li>
+<li>访问函数应该总是<code>const</code>.其他不会修改任何数据成员, 未调用非<code>const</code>函数, 不会返回数据成员非<code>const</code>指针或引用的函数也应该声明成<code>const</code></li>
+<li>数据成员在对象构造之后不再发生变化, 可将其定义为<code>const</code></li>
+</ul>
+</li>
+<li><p>将const放在前面</p>
+<blockquote>
+<p><code>const int* foo</code>优于<code>int const *foo</code></p>
+</blockquote>
+</li>
+<li><p>用<code>constexpr</code>来定义真正的常量，或实现常量初始化.</p>
+<blockquote>
+<p>没有说明要将const替换为constexpr，因而只是一个建议</p>
+</blockquote>
+</li>
+<li><p>关于整型，以下必须清楚:</p>
+<ul>
+<li>C++没有指定整型的大小.通常人们假定short是16位,int是32位,long是32位,long long是 64 位</li>
+<li><code>&lt;stdint.h&gt;</code>定义了<code>int16_t</code>,<code>uint32_t</code>,<code>int64_t</code>等整型, 在需要确保整型大小时可以使用它们代替<code>short</code>,<code>unsigned long long</code>等</li>
+<li>不要使用<code>uint32_t</code>等无符号整型, 除非你是在表示一个位组而不是一个数值, 或是你需要定义二进制补码溢出</li>
+</ul>
+</li>
+<li><p>出于64 位下的可移植性的考量，代码应该对 64 位和 32 位系统友好. 处理打印, 比较, 结构体对齐时应切记</p>
+</li>
+<li><p>谨慎地使用宏，可以的话，尽量用内联函数, 枚举和常量代替之，不得不用时候，切记如下：</p>
+<ul>
+<li>不要在 .h 文件中定义宏.</li>
+<li>在马上要使用时才进行 #define, 使用后要立即 #undef.</li>
+<li>不要只是对已经存在的宏使用#undef，选择一个不会冲突的名称；</li>
+<li>不要试图使用展开后会导致 C++ 构造不稳定的宏, 不然也至少要附上文档说明其行为.</li>
+<li>不要用 ## 处理函数，类和变量的名字。</li>
+</ul>
+</li>
+<li><p>关于零值：</p>
+<ul>
+<li>整数用0</li>
+<li>实数用 0.0</li>
+<li>指针C++03项目则用<code>NULL</code>，C++11项目用<code>nullptr</code></li>
+<li>字符串用’\0’</li>
+</ul>
+</li>
+<li><p>尽可能用<code>sizeof(varname)</code>代替<code>sizeof(type)</code>以防止varname的type变化的情况</p>
+</li>
+<li><p>只在局部变量中使用auto简化书写</p>
+ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; v;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">auto</span> s1 = v[<span class="number">0</span>];  <span class="comment">// 创建一份 v[0] 的拷贝。</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">auto</span>&amp; s2 = v[<span class="number">0</span>];  <span class="comment">// s2 是 v[0] 的一个引用。</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>善用列表初始化</p>
+ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Vector 接收了一个初始化列表。</span></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; v&#123;<span class="string">"foo"</span>, <span class="string">"bar"</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不考虑细节上的微妙差别，大致上相同。</span></span><br><span class="line"><span class="comment">// 您可以任选其一。</span></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; v = &#123;<span class="string">"foo"</span>, <span class="string">"bar"</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 可以配合 new 一起用。</span></span><br><span class="line"><span class="keyword">auto</span> p = <span class="keyword">new</span> <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&#123;<span class="string">"foo"</span>, <span class="string">"bar"</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// map 接收了一些 pair, 列表初始化大显神威。</span></span><br><span class="line"><span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="built_in">string</span>&gt; m = &#123;&#123;<span class="number">1</span>, <span class="string">"one"</span>&#125;, &#123;<span class="number">2</span>, <span class="string">"2"</span>&#125;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化列表也可以用在返回类型上的隐式转换。</span></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; test_function() &#123; <span class="keyword">return</span> &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化列表可迭代。</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i : &#123;<span class="number">-1</span>, <span class="number">-2</span>, <span class="number">-3</span>&#125;) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在函数调用里用列表初始化。</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TestFunction2</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v)</span> </span>&#123;&#125;</span><br><span class="line">TestFunction2(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>适当使用 lambda 表达式。别用默认 lambda 捕获，所有捕获都要显式写出来。</p>
+</li>
+<li><p>少用模板，模板维护成本高，只适合在大量使用的基础组件或数据结构上</p>
+</li>
+</ol>
+<h1 id="命名约定"><a href="#命名约定" class="headerlink" title="命名约定"></a><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/naming/" target="_blank" rel="noopener">命名约定</a></h1><ol>
+<li><p>函数、变量、文件名要有描述性，少用缩写，除非那些被广泛认可的。</p>
+</li>
+<li><p>文件名</p>
+<ul>
+<li>全部小写</li>
+<li>通过<code>_</code>连接</li>
+<li>要以<code>.cc</code>或者<code>.h</code>结尾，且成对出现</li>
+</ul>
+</li>
+<li><p>类型名</p>
+<ul>
+<li>首字母大写</li>
+<li>不包含下划线</li>
+</ul>
+</li>
+<li><p>变量名</p>
+<ul>
+<li>全部小写，用下划线连接</li>
+<li>类成员变量以下划线结尾，结构体不用<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> table_name;  <span class="comment">// 好 - 用下划线.</span></span><br><span class="line"><span class="built_in">string</span> tablename;   <span class="comment">// 好 - 全小写.</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">string</span> tableName;  <span class="comment">// 差 - 混合大小写</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TableInfo</span> &#123;</span></span><br><span class="line">  ...</span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="built_in">string</span> table_name_;  <span class="comment">// 好 - 后加下划线.</span></span><br><span class="line">  <span class="built_in">string</span> tablename_;   <span class="comment">// 好.</span></span><br><span class="line">  <span class="keyword">static</span> Pool&lt;TableInfo&gt;* pool_;  <span class="comment">// 好.</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>常量名</p>
+<ul>
+<li>声明为<code>constexpr</code>或<code>const</code>的变量，命名时以“k”结尾<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> kDaysInAWeek = <span class="number">7</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>函数命名</p>
+<ul>
+<li>首字母大写</li>
+<li>驼峰式<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AddTableEntry()</span><br><span class="line">DeleteUrl()</span><br><span class="line">OpenFileOrDie()</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>命名空间名</p>
+<ul>
+<li>全小写命名</li>
+<li>应对应一个可以存放其代码的文件夹</li>
+</ul>
+</li>
+<li><p>枚举名</p>
+<ul>
+<li>优先采用常量命名方法，其次宏名可接受<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> UrlTableErrors &#123;</span><br><span class="line">    kOK = <span class="number">0</span>,</span><br><span class="line">    kErrorOutOfMemory,</span><br><span class="line">    kErrorMalformedInput,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">enum</span> AlternateUrlTableErrors &#123;</span><br><span class="line">    OK = <span class="number">0</span>,</span><br><span class="line">    OUT_OF_MEMORY = <span class="number">1</span>,</span><br><span class="line">    MALFORMED_INPUT = <span class="number">2</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>宏</p>
+<ul>
+<li>全部大写，下划线连接<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PI_ROUNDED 3.0</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<h1 id="注释"><a href="#注释" class="headerlink" title="注释"></a><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/comments" target="_blank" rel="noopener">注释</a></h1><ol>
+<li><p>风格</p>
+<ul>
+<li>使用<code>//</code>或<code>/* */</code>, 统一就好</li>
+</ul>
+</li>
+<li><p>文件注释</p>
+<ul>
+<li>加入版权公告</li>
+<li>述了该文件的内容</li>
+</ul>
+</li>
+<li><p>类注释</p>
+<ul>
+<li>每个类的定义都要附带一份注释, 描述类的功能和用法</li>
+<li>描述类用法的注释应当和接口定义<code>(.h)</code>放在一起, 描述类的操作和实现的注释应当和实现<code>(.cc)</code>放在一起.</li>
+</ul>
+</li>
+<li><p>函数注释</p>
+<ul>
+<li>函数声明处的注释描述函数功能</li>
+<li>定义处的注释描述函数实现</li>
+<li>注释使用叙述式 (“Opens the file”) 而非指令式 (“Open the file”)</li>
+<li>注释重载函数时，重点应该是函数中被重载的部分</li>
+<li>注释构造函数时，重点在对参数做了什么</li>
+<li>注释析构函数时，重点在清理了什么内容，没有的话，可以不注释<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Returns an iterator for this table.  It is the client's</span></span><br><span class="line"><span class="comment">// responsibility to delete the iterator when it is done with it,</span></span><br><span class="line"><span class="comment">// and it must not use the iterator once the GargantuanTable object</span></span><br><span class="line"><span class="comment">// on which the iterator was created has been deleted.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// The iterator is initially positioned at the beginning of the table.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// This method is equivalent to:</span></span><br><span class="line"><span class="comment">//    Iterator* iter = table-&gt;NewIterator();</span></span><br><span class="line"><span class="comment">//    iter-&gt;Seek("");</span></span><br><span class="line"><span class="comment">//    return iter;</span></span><br><span class="line"><span class="comment">// If you are going to immediately seek to another place in the</span></span><br><span class="line"><span class="comment">// returned iterator, it will be faster to use NewIterator()</span></span><br><span class="line"><span class="comment">// and avoid the extra seek.</span></span><br><span class="line"><span class="function">Iterator* <span class="title">GetIterator</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>变量注释</p>
+<ul>
+<li>如果变量名足以说明用途，则不必再注释了</li>
+<li><p>如果变量可以接受<code>NULL</code>或<code>-1</code>等警戒值, 须加以说明</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span>:</span><br><span class="line"> <span class="comment">// Used to bounds-check table accesses. -1 means</span></span><br><span class="line"> <span class="comment">// that we don't yet know how many entries the table has.</span></span><br><span class="line"> <span class="keyword">int</span> num_total_entries_;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>所有全局变量也要注释说明含义及用途, 以及作为全局变量的原因</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// The total number of tests cases that we run through in this regression test.</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> kNumTestCases = <span class="number">6</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>实现注释</p>
+<ul>
+<li>巧妙或复杂的代码段<strong>前</strong>要加注释</li>
+<li>比较隐晦的地方要在行尾加入注释，行尾注释空两格，如果多行注释一起，可以使之对齐</li>
+<li>如果函数有多个配置项，可以定义一个类来保存所有的选项</li>
+<li>对于代码水平比你高的人还看不懂你的用意的，要加注释</li>
+</ul>
+</li>
+<li><p>TODO注释</p>
+<ul>
+<li>对于临时的、不完美的方案要用TODO</li>
+<li>之后用括号加上名字或者bug号码<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TODO(kl@gmail.com): Use a "*" here for concatenation operator.</span></span><br><span class="line"><span class="comment">// TODO(Zeke) change this to use relations.</span></span><br><span class="line"><span class="comment">// TODO(bug 12345): remove the "Last visitors" feature</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>弃用注释</p>
+<ul>
+<li>通过弃用注释（DEPRECATED comments）以标记某接口点已弃用</li>
+</ul>
+</li>
+<li><p>关于标点, 拼写和语法</p>
+<ul>
+<li>包含正确的大小写</li>
+<li>包含完整结尾句号</li>
+</ul>
+</li>
+</ol>
+<h1 id="格式"><a href="#格式" class="headerlink" title="格式"></a><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/formatting/" target="_blank" rel="noopener">格式</a></h1><ol>
+<li><p>行长度</p>
+<ul>
+<li>最多80个字符</li>
+</ul>
+</li>
+<li><p>非ASCII字符</p>
+<ul>
+<li>尽量不适用非ASCII字符，使用时必须使用UTF-8编码，单元测试不受此限制</li>
+</ul>
+</li>
+<li><p>缩进</p>
+<ul>
+<li>只用空格，每次2个</li>
+</ul>
+</li>
+<li><p>函数声明与定义</p>
+<ul>
+<li><p>返回类型和函数名在同一行, 参数也尽量放在同一行, 如果放不下就对形参分行</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ReturnType ClassName::FunctionName(Type par_name1, Type par_name2) &#123;</span><br><span class="line">  DoSomething();</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ReturnType ClassName::ReallyLongFunctionName(Type par_name1, Type par_name2,</span><br><span class="line">                                             Type par_name3) &#123;</span><br><span class="line">  DoSomething();</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ReturnType LongClassName::ReallyReallyReallyLongFunctionName(</span><br><span class="line">    Type par_name1,  <span class="comment">// 4 space indent</span></span><br><span class="line">    Type par_name2,</span><br><span class="line">    Type par_name3) &#123;</span><br><span class="line">  DoSomething();  <span class="comment">// 2 space indent</span></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>返回类型和函数名在一行放不下, 分行，不要缩进</p>
+</li>
+<li>左大括号总在最后一个参数同一行的末尾处, 不另起新行</li>
+<li>右大括号总是单独位于函数最后一行, 或者与左大括号同一行</li>
+<li>换行后保持4空格缩进</li>
+<li>未被使用的参数如果其用途不明显的话, 在函数定义处将参数名注释起来<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> Circle::Rotate(<span class="keyword">double</span> <span class="comment">/*radians*/</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>Lambda</p>
+<ul>
+<li>Lambda表达式对形参和函数体的格式化和其他函数一致</li>
+</ul>
+</li>
+<li><p>函数调用</p>
+<ul>
+<li>要么一行写完函数调用，要么圆括号里参数分行，要么另起一行缩进4格<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 一行写完函数调用</span></span><br><span class="line"><span class="keyword">bool</span> retval = DoSomething(argument1, argument2, argument3);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 圆括号里参数分行</span></span><br><span class="line"><span class="keyword">bool</span> retval = DoSomething(averyveryveryverylongargument1,</span><br><span class="line">                          argument2, argument3);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 另起一行缩进4格</span></span><br><span class="line"><span class="keyword">if</span> (...) &#123;</span><br><span class="line">  ...</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (...) &#123;</span><br><span class="line">    DoSomething(</span><br><span class="line">        argument1, argument2,  <span class="comment">// 4 空格缩进</span></span><br><span class="line">        argument3, argument4);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>列表初始化格式</p>
+<ul>
+<li>与函数调用初始化同理<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 一行列表初始化示范.</span></span><br><span class="line"><span class="keyword">return</span> &#123;foo, bar&#125;;</span><br><span class="line">functioncall(&#123;foo, bar&#125;);</span><br><span class="line">pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; p&#123;foo, bar&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当不得不断行时.</span></span><br><span class="line">SomeFunction(</span><br><span class="line">    &#123;<span class="string">"assume a zero-length name before &#123;"</span>&#125;,  <span class="comment">// 假设在 &#123; 前有长度为零的名字.</span></span><br><span class="line">    some_other_function_parameter);</span><br><span class="line">SomeType variable&#123;</span><br><span class="line">    some, other, values,</span><br><span class="line">    &#123;<span class="string">"assume a zero-length name before &#123;"</span>&#125;,  <span class="comment">// 假设在 &#123; 前有长度为零的名字.</span></span><br><span class="line">    SomeOtherType&#123;</span><br><span class="line">        <span class="string">"Very long string requiring the surrounding breaks."</span>,  <span class="comment">// 非常长的字符串, 前后都需要断行.</span></span><br><span class="line">        some, other values&#125;,</span><br><span class="line">    SomeOtherType&#123;<span class="string">"Slightly shorter string"</span>,  <span class="comment">// 稍短的字符串.</span></span><br><span class="line">                  some, other, values&#125;&#125;;</span><br><span class="line">SomeType variable&#123;</span><br><span class="line">    <span class="string">"This is too long to fit all in one line"</span>&#125;;  <span class="comment">// 字符串过长, 因此无法放在同一行.</span></span><br><span class="line">MyType m = &#123;  <span class="comment">// 注意了, 您可以在 &#123; 前断行.</span></span><br><span class="line">    superlongvariablename1,</span><br><span class="line">    superlongvariablename2,</span><br><span class="line">    &#123;<span class="keyword">short</span>, interior, <span class="built_in">list</span>&#125;,</span><br><span class="line">    &#123;interiorwrappinglist,</span><br><span class="line">     interiorwrappinglist2&#125;&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>条件语句</p>
+<ul>
+<li>不在圆括号里使用空格</li>
+<li><p><code>if</code>跟<code>else</code>另起一行</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (condition) &#123;  <span class="comment">// 圆括号里没有空格.</span></span><br><span class="line">  ...  <span class="comment">// 2 空格缩进.</span></span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (...) &#123;  <span class="comment">// else 与 if 的右括号同一行.</span></span><br><span class="line">  ...</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>简短的条件语句允许写在同一行</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (x == kBar) <span class="keyword">return</span> <span class="keyword">new</span> Bar();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>单行语句可以使用大括号，不过推荐使用大括号</p>
+</li>
+</ul>
+</li>
+<li><p>循环和开关选择语句</p>
+<ul>
+<li><p>包含default值，如果<code>default</code>应该永远执行不到, 简单的加条<code>assert</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (var) &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">0</span>: &#123;  <span class="comment">// 2 空格缩进</span></span><br><span class="line">    ...      <span class="comment">// 4 空格缩进</span></span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">1</span>: &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">default</span>: &#123;</span><br><span class="line">    assert(<span class="literal">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在单语句循环里, 括号可用可不用</p>
+</li>
+<li>空循环体应使用<code>{}</code>或<code>continue</code>, 而不是一个简单的分号<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; kSomeNumber; ++i) &#123;&#125;  <span class="comment">// 可 - 空循环体.</span></span><br><span class="line"><span class="keyword">while</span> (condition) <span class="keyword">continue</span>;  <span class="comment">// 可 - contunue 表明没有逻辑.</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>指针和引用表达式</p>
+<ul>
+<li>句点或箭头前后不要有空格. 指针/地址操作符 (*, &amp;) 之后不能有空格</li>
+<li>在声明指针变量或参数时, 星号与类型或变量名紧挨都可以<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 好, 空格前置.</span></span><br><span class="line"><span class="keyword">char</span> *c;</span><br><span class="line"><span class="keyword">const</span> <span class="built_in">string</span> &amp;str;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 好, 空格后置.</span></span><br><span class="line"><span class="keyword">char</span>* c;</span><br><span class="line"><span class="keyword">const</span> <span class="built_in">string</span>&amp; str;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>布尔表达式</p>
+<ul>
+<li>超过行宽，需要断行，断行时候<code>&amp;&amp;</code>等要放在末尾</li>
+</ul>
+</li>
+<li><p>变量及数组初始化</p>
+<ul>
+<li>用 =, () 和 {} 均可<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x = <span class="number">3</span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">x</span><span class="params">(<span class="number">3</span>)</span></span>;</span><br><span class="line"><span class="keyword">int</span> x&#123;<span class="number">3</span>&#125;;</span><br><span class="line"><span class="function"><span class="built_in">string</span> <span class="title">name</span><span class="params">(<span class="string">"Some Name"</span>)</span></span>;</span><br><span class="line"><span class="built_in">string</span> name = <span class="string">"Some Name"</span>;</span><br><span class="line"><span class="built_in">string</span> name&#123;<span class="string">"Some Name"</span>&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>预处理指令</p>
+<ul>
+<li>不要缩进，即使在缩进代码中<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">if</span> (lopsided_score) &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> DISASTER_PENDING      <span class="comment">// 正确 - 从行首开始</span></span></span><br><span class="line">    DropEverything();</span><br><span class="line"><span class="meta"># <span class="meta-keyword">if</span> NOTIFY               <span class="comment">// 非必要 - # 后跟空格</span></span></span><br><span class="line">    NotifyClient();</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    BackToNormal();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>类格式</p>
+<ul>
+<li>访问控制块的声明依次序是 public:, protected:, private:，每次一个缩进</li>
+<li>public:等关键词控制块之间要空一行，关键词之后不要空行<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> :</span> <span class="keyword">public</span> OtherClass &#123;</span><br><span class="line"> <span class="keyword">public</span>:      <span class="comment">// 注意有一个空格的缩进</span></span><br><span class="line">  MyClass();  <span class="comment">// 标准的两空格缩进</span></span><br><span class="line">  <span class="function"><span class="keyword">explicit</span> <span class="title">MyClass</span><span class="params">(<span class="keyword">int</span> var)</span></span>;</span><br><span class="line">  ~MyClass() &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">SomeFunction</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">SomeFunctionThatDoesNothing</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">set_some_var</span><span class="params">(<span class="keyword">int</span> var)</span> </span>&#123; some_var_ = var; &#125;</span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">some_var</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> some_var_; &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="function"><span class="keyword">bool</span> <span class="title">SomeInternalFunction</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> some_var_;</span><br><span class="line">  <span class="keyword">int</span> some_other_var_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>构造函数初始值列表</p>
+<ul>
+<li>构造函数初始化列表放在同一行或按四格缩进并排多行<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果所有变量能放在同一行:</span></span><br><span class="line">MyClass::MyClass(<span class="keyword">int</span> var) : some_var_(var) &#123;</span><br><span class="line">  DoSomething();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果不能放在同一行,</span></span><br><span class="line"><span class="comment">// 必须置于冒号后, 并缩进 4 个空格</span></span><br><span class="line">MyClass::MyClass(<span class="keyword">int</span> var)</span><br><span class="line">    : some_var_(var), some_other_var_(var + <span class="number">1</span>) &#123;</span><br><span class="line">  DoSomething();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果初始化列表需要置于多行, 将每一个成员放在单独的一行</span></span><br><span class="line"><span class="comment">// 并逐行对齐</span></span><br><span class="line">MyClass::MyClass(<span class="keyword">int</span> var)</span><br><span class="line">    : some_var_(var),             <span class="comment">// 4 space indent</span></span><br><span class="line">      some_other_var_(var + <span class="number">1</span>) &#123;  <span class="comment">// lined up</span></span><br><span class="line">  DoSomething();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 右大括号 &#125; 可以和左大括号 &#123; 放在同一行</span></span><br><span class="line"><span class="comment">// 如果这样做合适的话</span></span><br><span class="line">MyClass::MyClass(<span class="keyword">int</span> var)</span><br><span class="line">    : some_var_(var) &#123;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>命名空间</p>
+<ul>
+<li>不缩进，嵌套也不缩进<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> foo &#123;</span><br><span class="line"><span class="keyword">namespace</span> bar &#123;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>水平留白</p>
+ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">bool</span> b)</span> </span>&#123;  <span class="comment">// 左大括号前总是有空格.</span></span><br><span class="line">  ...</span><br><span class="line"><span class="keyword">int</span> i = <span class="number">0</span>;  <span class="comment">// 分号前不加空格.</span></span><br><span class="line"><span class="comment">// 列表初始化中大括号内的空格是可选的.</span></span><br><span class="line"><span class="comment">// 如果加了空格, 那么两边都要加上.</span></span><br><span class="line"><span class="keyword">int</span> x[] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line"><span class="keyword">int</span> x[] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 继承与初始化列表中的冒号前后恒有空格.</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span> :</span> <span class="keyword">public</span> Bar &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="comment">// 对于单行函数的实现, 在大括号内加上空格</span></span><br><span class="line">  <span class="comment">// 然后是函数实现</span></span><br><span class="line">  Foo(<span class="keyword">int</span> b) : Bar(), baz_(b) &#123;&#125;  <span class="comment">// 大括号里面是空的话, 不加空格.</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">Reset</span><span class="params">()</span> </span>&#123; baz_ = <span class="number">0</span>; &#125;  <span class="comment">// 用空格把大括号与实现分开.</span></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (b) &#123;          <span class="comment">// if 条件语句和循环语句关键字后均有空格.</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;          <span class="comment">// else 前后有空格.</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">while</span> (test) &#123;&#125;   <span class="comment">// 圆括号内部不紧邻空格.</span></span><br><span class="line"><span class="keyword">switch</span> (i) &#123;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; ++i) &#123;</span><br><span class="line"><span class="keyword">for</span> ( ; i &lt; <span class="number">5</span> ; ++i) &#123;  <span class="comment">// 循环里内 ; 后恒有空格, ;  前可以加个空格.</span></span><br><span class="line"><span class="keyword">switch</span> (i) &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">1</span>:         <span class="comment">// switch case 的冒号前无空格.</span></span><br><span class="line">    ...</span><br><span class="line">  <span class="keyword">case</span> <span class="number">2</span>: <span class="keyword">break</span>;  <span class="comment">// 如果冒号有代码, 加个空格.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 赋值运算符前后总是有空格.</span></span><br><span class="line">x = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 其它二元操作符也前后恒有空格, 不过对于表达式的子式可以不加空格.</span></span><br><span class="line"><span class="comment">// 圆括号内部没有紧邻空格.</span></span><br><span class="line">v = w * x + y / z;</span><br><span class="line">v = w*x + y/z;</span><br><span class="line">v = w * (x + z);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在参数和一元操作符之间不加空格.</span></span><br><span class="line">x = <span class="number">-5</span>;</span><br><span class="line">++x;</span><br><span class="line"><span class="keyword">if</span> (x &amp;&amp; !y)</span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line"><span class="comment">// 尖括号(&lt; and &gt;) 不与空格紧邻, &lt; 前没有空格, &gt; 和 ( 之间也没有.</span></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; x;</span><br><span class="line">y = <span class="keyword">static_cast</span>&lt;<span class="keyword">char</span>*&gt;(x);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在类型与指针操作符之间留空格也可以, 但要保持一致.</span></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">char</span> *&gt; x;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/c/" rel="tag"># c++</a>
+          
+            <a href="/tags/notes/" rel="tag"># notes</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/26/Reed–Solomon-codes-for-coders/" rel="next" title="[译]为程序员而作的Reed–Solomon编码详解">
+                <i class="fa fa-chevron-left"></i> [译]为程序员而作的Reed–Solomon编码详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/02/cpp-atomic-functions/" rel="prev" title="C++原子操作">
+                C++原子操作 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div id="gitalk-container">
+    </div>
+
+  
+
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">lylex</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/your-user-name" target="_blank" title="GitHub"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://twitter.com/your-user-name" target="_blank" title="Twitter"><i class="fa fa-fw fa-globe"></i>Twitter</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://qianzhou.tech/" title="Home" target="_blank">Home</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#《Google-C-风格指南》读书笔记"><span class="nav-number">1.</span> <span class="nav-text">《Google C++风格指南》读书笔记</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#头文件"><span class="nav-number"></span> <span class="nav-text">头文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#作用域"><span class="nav-number"></span> <span class="nav-text">作用域</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类"><span class="nav-number"></span> <span class="nav-text">类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#函数"><span class="nav-number"></span> <span class="nav-text">函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#来自Google的奇技"><span class="nav-number"></span> <span class="nav-text">来自Google的奇技</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其他-C-特性"><span class="nav-number"></span> <span class="nav-text">其他 C++ 特性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#命名约定"><span class="nav-number"></span> <span class="nav-text">命名约定</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注释"><span class="nav-number"></span> <span class="nav-text">注释</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#格式"><span class="nav-number"></span> <span class="nav-text">格式</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lylex</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '8c7ab95bc5f3ca386164',
+          clientSecret: 'e6f62aad49d8965638cea5ebe3bb7763a337f960',
+          repo: 'lylex.github.io',
+          owner: 'lylex',
+          admin: ['lylex'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="从一段代码来看C++模板最近在看C++的项目，看到了一段关于C++模板的代码，方才知道几年没有写C++，曾经费尽心思学的那些个C++模板的知识已经还掉了。不管怎么样，C++的泛型编程还是很强大的，省却了若干重复代码，赋予了C++元编程的能力，因此，还是要学的。这段代码基本囊括了模板的点点滴滴，正好可以用来恢复点记忆吧。一起来学学： 123456789101112131415161718192021">
+<meta name="keywords" content="c++">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从一段代码来看C++模板">
+<meta property="og:url" content="http://yoursite.com/2018/08/09/cpp-template/index.html">
+<meta property="og:site_name" content="lylex&#39;s humble Home">
+<meta property="og:description" content="从一段代码来看C++模板最近在看C++的项目，看到了一段关于C++模板的代码，方才知道几年没有写C++，曾经费尽心思学的那些个C++模板的知识已经还掉了。不管怎么样，C++的泛型编程还是很强大的，省却了若干重复代码，赋予了C++元编程的能力，因此，还是要学的。这段代码基本囊括了模板的点点滴滴，正好可以用来恢复点记忆吧。一起来学学： 123456789101112131415161718192021">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-08-13T06:21:13.108Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从一段代码来看C++模板">
+<meta name="twitter:description" content="从一段代码来看C++模板最近在看C++的项目，看到了一段关于C++模板的代码，方才知道几年没有写C++，曾经费尽心思学的那些个C++模板的知识已经还掉了。不管怎么样，C++的泛型编程还是很强大的，省却了若干重复代码，赋予了C++元编程的能力，因此，还是要学的。这段代码基本囊括了模板的点点滴滴，正好可以用来恢复点记忆吧。一起来学学： 123456789101112131415161718192021">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/08/09/cpp-template/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>从一段代码来看C++模板 | lylex's humble Home</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lylex's humble Home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/09/cpp-template/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="lylex">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lylex's humble Home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从一段代码来看C++模板
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-08-09 21:21:20" itemprop="dateCreated datePublished" datetime="2018-08-09T21:21:20-06:00">2018-08-09</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-08-13 00:21:13" itemprop="dateModified" datetime="2018-08-13T00:21:13-06:00">2018-08-13</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="从一段代码来看C-模板"><a href="#从一段代码来看C-模板" class="headerlink" title="从一段代码来看C++模板"></a>从一段代码来看C++模板</h2><p>最近在看C++的项目，看到了一段关于C++模板的代码，方才知道几年没有写C++，曾经费尽心思学的那些个C++模板的知识已经还掉了。不管怎么样，C++的泛型编程还是很强大的，省却了若干重复代码，赋予了C++元编程的能力，因此，还是要学的。这段代码基本囊括了模板的点点滴滴，正好可以用来恢复点记忆吧。一起来学学：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">struct</span> <span class="title">CreateUsingNew</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> T* <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> T;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">(T *p)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">delete</span> p;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">template</span> &lt;class&gt; <span class="title">class</span> <span class="title">CreationPolicy</span> = <span class="title">CreateUsingNew</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">Singleton</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> T&amp; <span class="title">instance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!s_instance) &#123;</span><br><span class="line">            create();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> *s_instance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        T *instance = (T*)atomic_compare_and_swap(&amp;s_instance,s_instance,<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (instance) &#123;</span><br><span class="line">            CreationPolicy&lt;T&gt;::destroy(instance);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Singleton();</span><br><span class="line">    Singleton(<span class="keyword">const</span> Singleton &amp;);</span><br><span class="line">    Singleton&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Singleton &amp;);</span><br><span class="line"></span><br><span class="line">    ~Singleton() &#123;</span><br><span class="line">        destroy();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        T *temp = CreationPolicy&lt;T&gt;::create();</span><br><span class="line">        T *old = atomic_compare_and_swap(&amp;s_instance, <span class="literal">NULL</span>, temp);</span><br><span class="line">        <span class="keyword">if</span> (old) &#123;</span><br><span class="line">            CreationPolicy&lt;T&gt;::destroy(temp);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">typedef</span> T* ptr_type;</span><br><span class="line">    <span class="keyword">static</span> ptr_type s_instance;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">template</span> &lt;class&gt; <span class="title">class</span> <span class="title">CreationPolicy</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">typename</span> <span class="title">Singleton</span>&lt;T, CreationPolicy&gt;:</span>:ptr_type Singleton&lt;T, CreationPolicy&gt;::</span><br><span class="line">    s_instance = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>如果看完之后，你跟我一样心里是一万个草泥马飘过的话，那好，证明我们是同道中人。代码已经看过了，至于里面的条条框框我们先不急，我们先一一将C++的几个知识点串一串，希望之后那些硬骨头会不攻自破。</p>
+<h1 id="一个典型的模板"><a href="#一个典型的模板" class="headerlink" title="一个典型的模板"></a>一个典型的模板</h1><p>模板大致又在实用中分成函数模板（function template）和类模板（class template）。我们上面的例子只是提及了类模板，没有函数模板，关于类模板成员函数的定义也还是属于类模板的范畴。</p>
+<p>以下，来看一个关于类模板和函数模板的示例吧：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 函数模板</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(T&amp; t1, T&amp; t2)</span> </span>&#123;</span><br><span class="line">  T tmp;</span><br><span class="line">  tmp = t1;</span><br><span class="line">  t1 = t2;</span><br><span class="line">  t2 = tmp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 类模板</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">struct</span> <span class="title">Swaper</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(T&amp; t1, T&amp; t2)</span> </span>&#123;</span><br><span class="line">    T tmp;</span><br><span class="line">    tmp = t1;</span><br><span class="line">    t1 = t2;</span><br><span class="line">    t2 = tmp;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>以上先是定义了一个模板函数swap，用于任意类型的交换，接着又定义了一个功能类似的Swaper模板类。在template后的尖括号<code>&lt;&gt;</code>中，两个模板分别使用了<code>typename</code>和<code>class</code>，实际上，二者是等效的，大体上讲，class是历史原因因而保留，推荐使用typename，两者都表示类型参数。注意，类模板中，struct默认是<code>public</code>的，而class默认是<code>private</code>的，所以这里的Swaper的swap成员函数是<code>public</code>的。</p>
+<p>回到我们一开始的那个例子吧，<code>CreateUsingNew</code>就是一个算是典型的简单类模板了，这就没有什么可说道的了。关于第二个<code>Singleton</code>类模板的类型参数有点不一样，具体解释看下一节吧。</p>
+<h1 id="模板参数"><a href="#模板参数" class="headerlink" title="模板参数"></a>模板参数</h1><p>看例子中的这段代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">template</span> &lt;class&gt; <span class="title">class</span> <span class="title">CreationPolicy</span> = <span class="title">CreateUsingNew</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">Singleton</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这个例子中，短短的一行代码，涉及了一下模板知识：</p>
+<h2 id="多模板参数"><a href="#多模板参数" class="headerlink" title="多模板参数"></a>多模板参数</h2><p>模板参数可以不止一个，这个很好理解啊，因为很多场景下，一个函数或者类中，有多个需要变化的类型，例如</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">maxSize</span><span class="params">(<span class="keyword">const</span> T&amp; t, <span class="keyword">const</span> C&amp; c)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> maxT = <span class="keyword">sizeof</span>(t);</span><br><span class="line">    <span class="keyword">int</span> maxC = <span class="keyword">sizeof</span>(c);</span><br><span class="line">    <span class="keyword">return</span> maxT &gt; maxC ? maxT : maxC;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  Test&lt;<span class="keyword">double</span>, <span class="keyword">int</span>&gt; t;</span><br><span class="line">  <span class="keyword">double</span> d;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; t.maxSize(d, i) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="模板型参数"><a href="#模板型参数" class="headerlink" title="模板型参数"></a>模板型参数</h2><p>所谓模板型参数，就是指模板的类型参数中，有一个或多个是模板，例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">template</span>&lt;<span class="keyword">typename</span>&gt; <span class="class"><span class="keyword">class</span> <span class="title">A</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">someclass</span> &#123;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// someclass&lt;int, Test&lt;int&gt;&gt; s;</span></span><br></pre></td></tr></table></figure>
+<p>使用的时候，要将模板参数先进行实例化，例如上面例子中的<code>Test&lt;int&gt;</code>，然后<code>Test&lt;int&gt;</code>整体作为someclass的参数。回到我们的开始之后的那个例子，<code>CreationPolicy</code>实际就是一个模板，然后再作为模板参数。不过，它后面的等于号是什么呢，接着往下看：</p>
+<h2 id="模板参数默认值"><a href="#模板参数默认值" class="headerlink" title="模板参数默认值"></a>模板参数默认值</h2><p>还是来看这个例子，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">template</span> &lt;class&gt; <span class="title">class</span> <span class="title">CreationPolicy</span> = <span class="title">CreateUsingNew</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><code>template &lt;class&gt; class CreationPolicy = CreateUsingNew</code>其实是作为这个模板的默认参数存在的，那么，什么是默认参数呢，顾名思义，就是类似函数的默认参数一样。需要特别注意的是，这个是C++11之后才有的特性。我们来看一个简单的例子吧：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T = <span class="keyword">int</span>&gt;</span><br><span class="line">class DefaultParam &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">DefaultParam&lt;&gt; d;</span><br></pre></td></tr></table></figure>
+<p>上面的这个例子就是默认值是int，这里有个需要注意的是，在实例化的时候，默认值后面的&lt;&gt;千万不要省略。</p>
+<p>事实上，我们开头给出的那个例子中<code>template &lt;class&gt; class CreationPolicy = CreateUsingNew</code>给出的是一个策略（policy）。所谓策略，一般是一个类模板，典型的策略是 STL 容器（如 std::vector&lt;&gt;，完整声明是template&lt;class T, class Alloc=allocator<t>&gt; class vector;）的分配器（这个参数有默认参数，即默认存储策略），策略类将模板的经常变化的那一部分子功能块集中起来作为模板参数，这样模板便可以更为通用，这和特性的思想是类似的。</t></p>
+<h1 id="禁用类默认生成的函数"><a href="#禁用类默认生成的函数" class="headerlink" title="禁用类默认生成的函数"></a>禁用类默认生成的函数</h1><p>众所周知，当编译检测到一个类有定义时(注意，空类是不会生成任何成员函数的，只有被使用、也就是被定义了才会)，就会为它生成几个成员函数（如果这个类恰好没有定义的话）：默认构造函数，析构函数，拷贝构造函数，赋值构造函数。</p>
+<p>即如下函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Singleton();</span><br><span class="line">    Singleton(<span class="keyword">const</span> Singleton &amp;);</span><br><span class="line">    Singleton&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Singleton &amp;);</span><br><span class="line"></span><br><span class="line">    ~Singleton() &#123;</span><br><span class="line">        destroy();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>如果在我们的一开始的程序中没有出现的话，那么编译器一旦发现这个类被使用了，那么是会给他定义的。可是，现在这四个函数都被设置成了private，设置成pravite意味着除了在类的成员函数中，其他情况都不可以访问，这几个本来在public中才能使用的函数被设置成了private，也就意味着这几个函数都不能被外界使用了呗，也就实现了禁用了。</p>
+<p>一个类既然不能构造，不能析构了，那还有什么用呢？哦，其实也不是完全的不能构造了，我们的程序又给他们定义了两个public static函数<code>create</code>和<code>destroy</code>，作为其wrapper，便替代了构造和析构的功能。</p>
+<h1 id="类模板静态成员变量的初始化"><a href="#类模板静态成员变量的初始化" class="headerlink" title="类模板静态成员变量的初始化"></a>类模板静态成员变量的初始化</h1><p>类的静态成员变量是个特别的存在，所有类的instance共享一份，而它的所有者却是类本身。它没有this指针，对象可以调用它，类也可以直接调用它。所以说呢，它看上去更像一个独特的全局变量，因而它只能在类定义体之外初始化。</p>
+<p>举个例子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">key</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">static</span> <span class="built_in">string</span> _y;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">string</span> key::_y = <span class="string">"test"</span>;</span><br></pre></td></tr></table></figure>
+<p>模板是要最终被编译器解析成代码的，那模板类的静态成员变量又是归属谁呢？试想一下，比如单参数模板，一种参数类型对应于一个类实现，那么，必然是这个类实现拥有其对应的静态成员变量的归属权了。</p>
+<p>我们再回过头来看看开头的这段代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">template</span> &lt;class&gt; <span class="title">class</span> <span class="title">CreationPolicy</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">typename</span> <span class="title">Singleton</span>&lt;T, CreationPolicy&gt;:</span>:ptr_type Singleton&lt;T, CreationPolicy&gt;::</span><br><span class="line">    s_instance = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>这下了然了，就是<code>Singleton&lt;T, CreationPolicy&gt;::ptr_type</code>类型的<code>Singleton&lt;T, CreationPolicy&gt;::s_instance</code>静态成员变量的初始化而已了，都给写完整了就有点唬人了。</p>
+<p>接下来，有人要问了，前面加的<code>typename</code>是什么意思？事实上省略了也是读的通的，只是为了避免如下的尴尬：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ContainsAnotherType</span> &#123;</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> iterator;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">foo&lt;ContainsAnotherType&gt;();</span><br></pre></td></tr></table></figure>
+<p>然后，<code>T::iterator * iter;</code>被编译器实例化为<code>ContainsAnotherType::iterator * iter;</code>，这就有歧义了，这是乘法呢，还是一个定义呢？</p>
+<p>所以说，为了避免歧义，依赖模板参数才能确定的那些类型名字，都要加上<code>typename</code>。下面就是一些典型的例子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">void</span> <span class="title">foo</span>() &#123;</span></span><br><span class="line">    <span class="keyword">typename</span> T::iterator iter;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">void</span> <span class="title">foo</span>() &#123;</span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">typename</span> T::iterator iterator_type;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a href="https://www.cnblogs.com/liangliangh/p/4219879.html" target="_blank" rel="noopener">C++模板元编程</a></li>
+<li><a href="http://feihu.me/blog/2014/the-origin-and-usage-of-typename/" target="_blank" rel="noopener">typename的起源与用法</a></li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/c/" rel="tag"># c++</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/02/cpp-atomic-functions/" rel="next" title="C++原子操作">
+                <i class="fa fa-chevron-left"></i> C++原子操作
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/15/singleton-thread-safe/" rel="prev" title="一个线程安全的Singleton">
+                一个线程安全的Singleton <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div id="gitalk-container">
+    </div>
+
+  
+
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">lylex</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/your-user-name" target="_blank" title="GitHub"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://twitter.com/your-user-name" target="_blank" title="Twitter"><i class="fa fa-fw fa-globe"></i>Twitter</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://qianzhou.tech/" title="Home" target="_blank">Home</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从一段代码来看C-模板"><span class="nav-number">1.</span> <span class="nav-text">从一段代码来看C++模板</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一个典型的模板"><span class="nav-number"></span> <span class="nav-text">一个典型的模板</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#模板参数"><span class="nav-number"></span> <span class="nav-text">模板参数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#多模板参数"><span class="nav-number">1.</span> <span class="nav-text">多模板参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模板型参数"><span class="nav-number">2.</span> <span class="nav-text">模板型参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模板参数默认值"><span class="nav-number">3.</span> <span class="nav-text">模板参数默认值</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#禁用类默认生成的函数"><span class="nav-number"></span> <span class="nav-text">禁用类默认生成的函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类模板静态成员变量的初始化"><span class="nav-number"></span> <span class="nav-text">类模板静态成员变量的初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number"></span> <span class="nav-text">参考</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lylex</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '8c7ab95bc5f3ca386164',
+          clientSecret: 'e6f62aad49d8965638cea5ebe3bb7763a337f960',
+          repo: 'lylex.github.io',
+          owner: 'lylex',
+          admin: ['lylex'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

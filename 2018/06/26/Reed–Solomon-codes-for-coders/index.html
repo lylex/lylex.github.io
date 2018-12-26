@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="[译]为程序员而作的Reed–Solomon编码详解原文：Reed–Solomon codes for coders 作者：Unknown 纠错码是一个用于纠正错误的处理技巧。他们现在是无所不在，例如，在通讯中（移动电话、互联网），数据存储和归档（硬盘、CD/DVD/BluRay光盘）,仓储管理（条形码）以及广告（QR码）。 Reed–Solomon纠错码是一种典型的纠错码。它是一种古老但又被广泛">
+<meta name="keywords" content="translation">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[译]为程序员而作的Reed–Solomon编码详解">
+<meta property="og:url" content="http://yoursite.com/2018/06/26/Reed–Solomon-codes-for-coders/index.html">
+<meta property="og:site_name" content="lylex&#39;s humble Home">
+<meta property="og:description" content="[译]为程序员而作的Reed–Solomon编码详解原文：Reed–Solomon codes for coders 作者：Unknown 纠错码是一个用于纠正错误的处理技巧。他们现在是无所不在，例如，在通讯中（移动电话、互联网），数据存储和归档（硬盘、CD/DVD/BluRay光盘）,仓储管理（条形码）以及广告（QR码）。 Reed–Solomon纠错码是一种典型的纠错码。它是一种古老但又被广泛">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/06/26/Reed–Solomon-codes-for-coders/QR_Code_Example.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/26/Reed–Solomon-codes-for-coders/QR_Code_Masking_Example.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/26/Reed–Solomon-codes-for-coders/QR_Code_Mask_Patterns.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/26/Reed–Solomon-codes-for-coders/QR_Code_Unmasked.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/26/Reed–Solomon-codes-for-coders/divide.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/26/Reed–Solomon-codes-for-coders/Multiplication.png">
+<meta property="og:updated_time" content="2018-07-27T02:07:35.176Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[译]为程序员而作的Reed–Solomon编码详解">
+<meta name="twitter:description" content="[译]为程序员而作的Reed–Solomon编码详解原文：Reed–Solomon codes for coders 作者：Unknown 纠错码是一个用于纠正错误的处理技巧。他们现在是无所不在，例如，在通讯中（移动电话、互联网），数据存储和归档（硬盘、CD/DVD/BluRay光盘）,仓储管理（条形码）以及广告（QR码）。 Reed–Solomon纠错码是一种典型的纠错码。它是一种古老但又被广泛">
+<meta name="twitter:image" content="http://yoursite.com/2018/06/26/Reed–Solomon-codes-for-coders/QR_Code_Example.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/06/26/Reed–Solomon-codes-for-coders/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>[译]为程序员而作的Reed–Solomon编码详解 | lylex's humble Home</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lylex's humble Home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/26/Reed–Solomon-codes-for-coders/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="lylex">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lylex's humble Home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[译]为程序员而作的Reed–Solomon编码详解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-06-26 01:25:17" itemprop="dateCreated datePublished" datetime="2018-06-26T01:25:17-06:00">2018-06-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-07-26 20:07:35" itemprop="dateModified" datetime="2018-07-26T20:07:35-06:00">2018-07-26</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="译-为程序员而作的Reed–Solomon编码详解"><a href="#译-为程序员而作的Reed–Solomon编码详解" class="headerlink" title="[译]为程序员而作的Reed–Solomon编码详解"></a>[译]为程序员而作的Reed–Solomon编码详解</h2><p><strong>原文：<a href="https://en.wikiversity.org/wiki/Reed%E2%80%93Solomon_codes_for_coders" target="_blank" rel="noopener">Reed–Solomon codes for coders</a> 作者：Unknown</strong></p>
+<p><a href="https://en.wikipedia.org/wiki/Error_detection_and_correction" target="_blank" rel="noopener">纠错码</a>是一个用于纠正错误的处理技巧。他们现在是无所不在，例如，在通讯中（移动电话、互联网），数据存储和归档（硬盘、CD/DVD/BluRay光盘）,仓储管理（条形码）以及广告（QR码）。</p>
+<p><a href="https://en.wikipedia.org/wiki/Reed%E2%80%93Solomon_error_correction" target="_blank" rel="noopener">Reed–Solomon纠错码</a>是一种典型的纠错码。它是一种古老但又被广泛使用的编码，因为它被定义地很好并且它的好些高效的算法实现在公共领域中可以使用了。</p>
+<p>通常的，纠错码是隐藏的并且大多数用户甚至都不知道它们，也不知道他们何时被使用了。他们是很多应用赖以维继的不可或缺的组件，比如通讯和数据存储。确实，一个每几天都会随即丢失数据的硬盘是没有什么用的，通用一个只能在万里无云的天气才能使用的电话也是没有用的。通过使用纠错码，可以将被干扰的信息恢复成完整的原始信息。</p>
+<p>条形码和二维码是学起来比较有意思的东西，因为它们有着将纠错码可视化从而将这些编码让好奇的用户可以触及的一种特异功能。</p>
+<p>在这篇文章中，我们将尝试从一个程序员而不是数学家的视角来阐述Reed–Solomon的原理，也就是说，我们将侧重实践多于理论，尽管我们也会讲讲理论，但那只是为了直观和实现的必要知识。这个领域中著名的参考文献也将会被提供出来，这样感兴趣的读者也能在数学理论中挖地更深点。<br>我们也将提供现实世界中采集的关于QR码系统和可以用的编码范例。我们将采用Python来讲这些范例（主要因为它看起来简单并且接近伪代码），但是我们也将为不熟悉这个语言的人来阐述一些不明显的关于这个语言的特性。这里涉及到的数学知识通常被认为大学以下是没怎么教过的，但是高中代数知识学得好的人也能掌握。</p>
+<p>我们先浅显地介绍纠错码之后的编码知识，然后再第二部分我们来介绍QR码（译者注：即二维码，以下不再区分）的结构化的介绍，换句话说就是信息是怎么存储在QR码中以及怎样读取、制作它的，然后在第三部分我们将通过Reed–Solomon解码器的实现来学习纠错码，通过更高一点的BCH编码家族的快速介绍，从而可以可靠地读取QR码。</p>
+<p>提醒好奇的读者的是，扩展信息可以在讨论页的附录中可以看到。</p>
+<h1 id="纠错原理"><a href="#纠错原理" class="headerlink" title="纠错原理"></a>纠错原理</h1><p>在细说编码之前，理解下纠错背后的直观只是可能是有用的。事实上，尽管纠错码可能看起来有着高深莫测的数学理论，但是绝大多数数学操作是高中级别的（Galois域是个例外，但是它事实上这对于程序员来说是很容易很普遍的：它就是简单地在实数取模上做了一些操作。）<br>然而，纠错码背后的数学精巧的复杂性隐藏了这个实践中的直观的目标和机制。</p>
+<p>纠错码可能看起来像是一个比较难的数学概念，但他们事实上是基于一个直观的想法加上一个精巧的数学实现：<strong>让我们把数据结构化，通过某种方法我们能猜到一个被损毁的数据是什么，仅仅依靠“修理”这个结构</strong>。数学上，我们采用来自于Galois域的多项式来实现这个结构。</p>
+<p>让我们来作一个实际的类比：比如说我们想要交流信息给别人，但是这些信息可能在路上被损毁。纠错码的主要洞察力是，<strong>与其使用一整个字典的单词，我们可以使用一组精选过的单词，一个“精简过的字典”，这样每个单词都和其他的单词不一样了</strong>。这样，当我们收到一个消息的时候，我们仅仅需要在我们这个精简过的字典中查询了，从而可以<strong>1）检测</strong>哪个词被损坏了（因为他们不在我们的精简字典中）；<strong>2）修正</strong>被损坏的词，通过在这个字典中最相近的词来实现。</p>
+<p>让我们来举一个简单的例子：我们有一个精简的带有仅仅三个含有四个字母的字典：this、that和corn。比如说，我们接受到了一个被损坏的词：co**，其中*表示被擦除了。既然我们仅仅有3个词在我们的字典中，我们就能非常容易地比较接收到的词和我们字典中的词，从而来找到哪个是最接近的单词。在这个例子中，是corn。那么丢失的字母是rn。</p>
+<p>现在我们假设接受到了单词th**。问题就变成在我们的字典中有两个词跟这个接收到的词相匹配：this和that。这种情况下，我们不能确定它是哪个，因而不能解码。这意味着我们的字典不是那么的好，因而我们应当用其他更复杂的单词来代替that，例如dash，来最大化每个单词之间的区别。这个区别，或者更确切地说是我字典中任意两个单词之间不同字母的最小数目，叫做我们字典的<strong>最大海明距离</strong>。记住，字典中任意2个单词在同一位置共享的最小字母数个数叫做“最大可分离性”。</p>
+<p>同样的原则也被应用在了纠错码上：我们只是生产一个简化的只包含最大可分离性的单词的简化字典（我们也会在第三部分深入讨论如何做），并且我们也会用这个简化字典中的单词进行通讯。Galois域所提供的是这个结构（也就是，简化字典的基础），而Reed-Solomon是一个自动构建这个合适的结构的方法（制作一个为一个数据集量身定制的具备最大可分离性的简化字典），也提供一个自动的方法来检测和纠正错误（也就是在简化自动中查找）。更精确点说，Galois域就是这个结构（多亏了它们的循环的特质，对实数的取模），而Reed-Solomon就是这个基于Galois域的编解码方法。</p>
+<p>如果一个单词在通讯中被损坏了，那也没什么大不了的，因为我们可以通过查找字典并找到最接近的单词，从而很容易地修正它，这大概就是正确的（然而我们也可能选一个错误的词，如果这个输入信息被高度损坏了的话，但是这个可能性是非常的小的）。同样的，我们的单词越长，他们的分离性越强，因为更多字母会在没有任何影响的情况下被损坏。</p>
+<p>制作一个带有最大可分离性的字典的最简单的方法就是去让单词变得比它们实际上更长。</p>
+<p>让我们在来看看我们的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">t h i s</span><br><span class="line">t h a t</span><br><span class="line">c o r n</span><br></pre></td></tr></table></figure>
+<p>增加一组各不相同的字母，这样在任何增加的位置就没有重复的字母了，并增加一个额外的单词来帮助解释：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">t h i s a b c d</span><br><span class="line">t h a t b c d e</span><br><span class="line">c o r n c d e f</span><br><span class="line">t h i n d e f g</span><br></pre></td></tr></table></figure>
+<p>注意，最少通过5个字母，就可以把这个字典中每一个词跟其他词区分出来，因此距离是5。这个可以容忍在已知位置的四个错误，也被叫做消磁，或者2个在位置位置等待被纠正的错误。</p>
+<p>假设4个消磁出现了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">t * * * a b * d</span><br></pre></td></tr></table></figure>
+<p>那么在这个字典中找着四个没有被消磁的字母就可以找到那个跟这四个字母相匹配的单词，因为距离是5。</p>
+<p>假设这2个错误就是一下这些形式中的一种：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">t h i x a x c d</span><br><span class="line">x h i x a b c d</span><br><span class="line">t h x x a b c d</span><br></pre></td></tr></table></figure>
+<p>这里的问题是错误的位置是未知的。8个字母中取6个有28个可能的子集，那么就要做一个6个字母组成的28个子集的查找，然后就同样只有一个子集和这6个字母相匹配，因为距离是5（并且假设小于等于2个错误出现）。</p>
+<p>通过这个例子，我们可以看到冗余在恢复丢失的信息中的优势：冗余字符可以帮助你恢复你的原始数据。以上的例子展示了一个粗糙的纠错是如何工作的。Reed-Solomon的核心思想是相近的，根据Galois域理论在一个信息中附加冗余数据。原始的纠错解码器和上面的找错误的例子接近，搜索接受到的信息与有效信息相对应的子集，然后选择最接近的作为纠正后的信息。这个对于较大的信息是不可实现的，因此数学理论被开发出来从而可以在合理的时间里实行错误纠正。</p>
+<h1 id="QR码结构"><a href="#QR码结构" class="headerlink" title="QR码结构"></a>QR码结构</h1><p>这节介绍QR码的结构，也就是数据是如何存储在QR码中的。本节信息是不完整的，那是有意为之的。这里只介绍了小的21*21大小的符号（就是大家熟知的版本1）最基本的功能，想要知道额外的信息看附录吧。</p>
+<p>这里一个QR符号将被用来作为例子。它由黑白方块组成，在条码世界中被叫做模块。三个在角落的方块定位模式是QR码鲜明的特征。</p>
+<p><img src="/2018/06/26/Reed–Solomon-codes-for-coders/QR_Code_Example.png" width="250" height="250" alt="QR_Code_Example"></p>
+<h2 id="掩码"><a href="#掩码" class="headerlink" title="掩码"></a>掩码</h2><p>掩码过程是用来规避图像数据中那些迷惑扫描器的特性，譬如那些看起来像定位器模式的具有误导性的形状和大片的空白区域。掩码反转了某些模块（使得白的变黑的，黑的变白的），而其他的保持不变。</p>
+<p>在下图中，红色区域编码了格式信息并使用了一个固定的掩码模式。数据区域（黑色和白色的部分）用可变的模式作了掩码计算。生成编码的时候，编码器尝试了若干不同的掩码，并选择了能够最小化结果中不良特征的那一个掩码。选择的掩码模式被表示在了格式信息中，因而解码器就知道用哪个掩码模式了。浅灰色区域是固定的模式，它们并没有编码任何信息。除了明显的定位模式之外，还有其他的包含黑白模块交错的标尺模式。</p>
+<p><img src="/2018/06/26/Reed–Solomon-codes-for-coders/QR_Code_Masking_Example.png" width="600" height="2000" alt="QR_Code_Example"></p>
+<p>掩码转换很容易通过异或运算（在很多编程语言中用^来表示）来施加（或去除）。格式信息的反掩码如下所示。逆时针读取左上角的定位模式，我们得到如下的比特序列。其中白色模块表示0，黑色的表示1。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Input       101101101001011</span><br><span class="line">Mask      ^ 101010000010010</span><br><span class="line">Output      000111101011001</span><br></pre></td></tr></table></figure>
+<h2 id="格式信息"><a href="#格式信息" class="headerlink" title="格式信息"></a>格式信息</h2><p>格式信息有两个相同的副本，因此即使被损坏了任然能够被解码。第二个副本被分裂成两片，放置在了另外的两个定位器周围，也是通过逆时针方向读取（从左下角向上，然后右上角从左往右）。<br>格式信息的开始的两个比特给出了信息数据的纠错等级。这个大小的二维码包含了26字节的信息。这些信息中的一部分是用来存储信息，一部分是用来纠错的，正如下表所示的。左列仅仅是那个等级的名字。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">纠错等级</th>
+<th style="text-align:center">等级指示</th>
+<th style="text-align:center">纠错字节</th>
+<th style="text-align:center">信息数据字节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">L</td>
+<td style="text-align:center">01</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">19</td>
+</tr>
+<tr>
+<td style="text-align:center">M</td>
+<td style="text-align:center">00</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">16</td>
+</tr>
+<tr>
+<td style="text-align:center">Q</td>
+<td style="text-align:center">11</td>
+<td style="text-align:center">13</td>
+<td style="text-align:center">13</td>
+</tr>
+<tr>
+<td style="text-align:center">H</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">17</td>
+<td style="text-align:center">9</td>
+</tr>
+</tbody>
+</table>
+<p>格式信息接下来的三个比特数据指定了用于数据区域的掩码模式。这些模式如下所示，包括表明一个模块是不是黑色的数学公式（i和j是分别表示行号和列号，在左上角从0开始编号）。</p>
+<p><img src="/2018/06/26/Reed–Solomon-codes-for-coders/QR_Code_Mask_Patterns.png" width="600" height="2000" alt="QR_Code_Mask_Patterns"></p>
+<p>剩下的格式信息的十个比特是留个格式信息自己纠错的。这个将会在接下来的章节中解释。</p>
+<h2 id="信息数据"><a href="#信息数据" class="headerlink" title="信息数据"></a>信息数据</h2><p>这里有一张大图来展示没有被掩码过的QR码。QR码的不同区域都标记出来了，包括信息数据字节的边界。</p>
+<p><img src="/2018/06/26/Reed–Solomon-codes-for-coders/QR_Code_Unmasked.png" width="900" height="900" alt="QR_Code_Unmasked"></p>
+<p>数据字节是从右下角开始读取，并沿着右边两列走锯齿形模式。开始的三个字节是01000000 11010010 01110101。接下来的两列是沿着向下方向读取的，因此接下来的字节是01000111。直到读到底了，再向上读两列。就像这样上上下下地处理，直到读到二维码的最左边（有必要的话，跳过标尺模式）。这是十六进制的完整信息。</p>
+<pre><code>信息数据字节：40 d2 75 47 76 17 32 06 27 26 96 c6 c6 96 70 ec
+错误纠正字节：bc 2a 90 13 6b af ef fd 4b e0
+</code></pre><h2 id="解码"><a href="#解码" class="headerlink" title="解码"></a>解码</h2><p>最后一步是把信息字节解码成可读的东西。开始的四个比特指明了信息是怎么编码的。QR码采用了好几种编码方案，因此不同的信息都可以被高效地储存。这些被总结在了下表中。模式指示符后是长度字段，表明存了多少字母的。长度字段的大小由特定的编码方式决定。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">模式名词</th>
+<th style="text-align:center">模式指示符</th>
+<th style="text-align:center">长度比特</th>
+<th style="text-align:center">数据比特</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">数字</td>
+<td style="text-align:center">0001</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">每三个数字10个比特</td>
+</tr>
+<tr>
+<td style="text-align:center">字母</td>
+<td style="text-align:center">0010</td>
+<td style="text-align:center">9</td>
+<td style="text-align:center">每两个字母11个比特</td>
+</tr>
+<tr>
+<td style="text-align:center">字节</td>
+<td style="text-align:center">0100</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">每个字符8个比特</td>
+</tr>
+<tr>
+<td style="text-align:center">汉字</td>
+<td style="text-align:center">1000</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">每个字符13个比特</td>
+</tr>
+</tbody>
+</table>
+<p>（上图中长度字段的大小仅仅对小的二维码有效。）</p>
+<p>我们的范例信息开始于0100，表示每个字符有8个比特。接下来的8比特是长度字段，00001101，或者是十进制的13。之后的就是实际的信息字符了。开始的两个是00100111和01010100（ASCII编码中的省略号和T）。有兴趣的读者可以自行解码剩下的信息。</p>
+<p>数据比特之后是另外的4比特的模式指示符。它可以跟第一个不同，可以容许不同的编码和QR码混合其中。当没有更多数据要存的时候，就给个0000来作为特殊的信息结束标志。（注意，标准允许信息结束码可以被省略，如果可用的数据字节数不够的话。）</p>
+<p>从这点上来讲，我们知道了如何去解码或者去读取一个完整二维码。然后，在真实的情况下，一个二维码很少是完整的：通常，它是通过手机摄像头来扫描的，可能是在光照条件不好的情况下照的，或者表面有划痕导致部分二维码被抠掉了，或者在一个被涂掉了的表面，等等。</p>
+<p>为了让我们的二维码解码器更加<strong>可靠</strong>，我们需要能够<strong>纠正</strong>错误。这篇文章接下来的这部分就会描述如何去纠正错误，通过构建一个BCH解码器，以及更加专门的Reed-Solomon解码器。</p>
+<h1 id="BCH编码"><a href="#BCH编码" class="headerlink" title="BCH编码"></a>BCH编码</h1><p>在这节中，我们来介绍一个大众级别的纠错码：BCH编码，是现代Reed-Solomon编码的父母辈的，也是基础的检测和纠正机制。</p>
+<p>格式信息是用BCH码来编码的，它使得一定数目的比特错误能够被检测并纠正。BCH码是一种通用版的Reed-Solomon编码（现代Reed-Solomon编码属于BCH编码的一种）。在二维码的例子中，用于格式信息的BCH编码要比用于信息数据的Reed-Solomon编码来简单一些，因此从用于格式信息的BCH编码开始是合理的。</p>
+<h2 id="BCH错误检测"><a href="#BCH错误检测" class="headerlink" title="BCH错误检测"></a>BCH错误检测</h2><p>检查编码信息的过程类似于长除，只是使用异或而非减法。格式编码被所谓的编码构建者（generator）“除”的时候应当产生余数0。QR格式编码采用的构建者是10100110111。我们例子中的格式信息编码（000111101011001）的处理过程如下所示。</p>
+<p><img src="/2018/06/26/Reed–Solomon-codes-for-coders/divide.png" width="300" height="300" alt="divide"></p>
+<p>这里用Python函数来实现这个计算过程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">qr_check_format</span><span class="params">(fmt)</span>:</span></span><br><span class="line">   g = <span class="number">0x537</span> <span class="comment"># = 0b10100110111 in python 2.6+</span></span><br><span class="line">   <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">4</span>,<span class="number">-1</span>,<span class="number">-1</span>):</span><br><span class="line">      <span class="keyword">if</span> fmt &amp; (<span class="number">1</span> &lt;&lt; (i+<span class="number">10</span>)):</span><br><span class="line">         fmt ^= g &lt;&lt; i</span><br><span class="line">   <span class="keyword">return</span> fmt</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// go code</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">qr_check_format</span><span class="params">(fmt <span class="keyword">uint</span>)</span> <span class="title">uint</span></span> &#123;</span><br><span class="line">        <span class="keyword">var</span> g <span class="keyword">uint</span> = <span class="number">0x537</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">4</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">                <span class="keyword">if</span> fmt&amp;(<span class="number">1</span>&lt;&lt;(<span class="keyword">uint</span>)(i+<span class="number">10</span>)) != <span class="number">0</span> &#123;</span><br><span class="line">                        fmt ^= g &lt;&lt; <span class="keyword">uint</span>(i)</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> fmt</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em>Python注解</em>：range函数可能对于非Python程序员不怎么清楚。它制造一个一系列数字从4数到0。在C系的语言中，用for循环可以写成<code>for (i = 4; i &gt;= 0; i--)</code>；在Pascal系语言中是<code>for i := 4 downto 0.</code>.</p>
+<p><em>Python注解2</em>：&amp;操作符表示按位与，&lt;&lt;表示向左移位。这个和C系语言是一致的。</p>
+<p>(译者注：笔者熟悉Golang胜过Python，为了自己阅读方便，故而偶遇难读之Python，也会用Golang重写之，下同)</p>
+<p>这个函数也一个被用来编码5比特的格式信息。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">encoded_format = (format&lt;&lt;<span class="number">10</span>) ^ qr_check_format(format&lt;&lt;<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+<p>读者可能会将这个函数推广到可以除以不同的数字视为一种有趣的练习。例如，大的二维码包含了6比特的版本信息和12比特错误纠正信息，并使用1111100100101作为构造者。</p>
+<p>在数学意义上，这些二进制数被描述成整数模2作为系数的多项式。这个数字的每一个比特都对应一个系数。例如：<br>10100110111 = 1 x^10 + 0 x^9 + 1 x^8 + 0 x^7 + 0 x^6 + 1 x^5 + 1 x^4 + 0 x^3 + 1 x^2 + 1 x + 1 = x^10 + x^8 + x^5 + x^4 + x^2 + x + 1</p>
+<p>如果qr_check_format产生的余数不为0，那么这个编码就已经被损坏或者误读了。接下来就要检测本来打算用的格式编码最像哪个了（也就是查找我们的冗余字典了）。</p>
+<h2 id="BCH纠错"><a href="#BCH纠错" class="headerlink" title="BCH纠错"></a>BCH纠错</h2><p>尽管用于解码BCH编码的复杂算法存在了，但是在我们的例子也未免有点杀鸡用牛刀了。因为仅仅有32种可能的格式编码，所以一个一个地去尝试然后挑选一个和问题中的编码比特位差异位数最小的一个反而容易点（比特位差异数就是Hamming距离）。寻找最近的编码的方法叫做穷举搜索，并且是可行的因为我们有很少的编码要去尝试（一个编码是一个有效的信息，并且这里只有32个，所有其他的二进制数都是不正确的）。</p>
+<p>（注意，Reed–Solomon算法也是基于这样的一个原则，但是由于可能的编码码文种类太多了，我们没法去穷举搜索，这就是为什么聪明但复杂的算法被发明出来的原因吧，比如Berlekamp-Massey）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hamming_weight</span><span class="params">(x)</span>:</span></span><br><span class="line">   weight = <span class="number">0</span></span><br><span class="line">   <span class="keyword">while</span> x &gt; <span class="number">0</span>:</span><br><span class="line">      weight += x &amp; <span class="number">1</span></span><br><span class="line">      x &gt;&gt;= <span class="number">1</span></span><br><span class="line">   <span class="keyword">return</span> weight</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">qr_decode_format</span><span class="params">(fmt)</span>:</span></span><br><span class="line">   best_fmt = <span class="number">-1</span></span><br><span class="line">   best_dist = <span class="number">15</span></span><br><span class="line">   <span class="keyword">for</span> test_fmt <span class="keyword">in</span> range(<span class="number">0</span>,<span class="number">32</span>):</span><br><span class="line">      test_code = (test_fmt&lt;&lt;<span class="number">10</span>) ^ qr_check_format(test_fmt&lt;&lt;<span class="number">10</span>)</span><br><span class="line">      test_dist = hamming_weight(fmt ^ test_code)</span><br><span class="line">      <span class="keyword">if</span> test_dist &lt; best_dist:</span><br><span class="line">         best_dist = test_dist</span><br><span class="line">         best_fmt = test_fmt</span><br><span class="line">      <span class="keyword">elif</span> test_dist == best_dist:</span><br><span class="line">         best_fmt = <span class="number">-1</span></span><br><span class="line">   <span class="keyword">return</span> best_fmt</span><br></pre></td></tr></table></figure>
+<p>如果格式编码不能够被毫无歧义地解码，那么qr_decode_format函数返回-1。这个情况发生于两个或多个格式编码与输入有着同样的距离。</p>
+<p>要在Python中跑这段代码，首先启动IDLE，也就是Python的集成开发环境。你应该看到一个版本信息和交互式输入提示符&gt;&gt;&gt;。打开一个新的窗口，拷贝qr_check_format、hamming_weight以及qr_decode_format进去，然后保存为qr.py。返回到提示符，输入这些接在&gt;&gt;&gt;后面的这些行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from qr import *</span><br><span class="line">&gt;&gt;&gt; qr_decode_format(int(&quot;000111101011001&quot;,2))  # no errors</span><br><span class="line">3</span><br><span class="line">&gt;&gt;&gt; qr_decode_format(int(&quot;111111101011001&quot;,2))  # 3 bit-errors</span><br><span class="line">3</span><br><span class="line">&gt;&gt;&gt; qr_decode_format(int(&quot;111011101011001&quot;,2))  # 4 bit-errors</span><br><span class="line">-1</span><br></pre></td></tr></table></figure>
+<p>你也可以通过在命令行提示符中打入python来启动Python。</p>
+<p>在接下来的章节中，我们将会学习无限域理论（Finite Field Arithmetics）和Reed–Solomon编码，Reed–Solomon code是BCH编码的一个子类型。基本的思想（也就是，<strong>用一个具有最大可分离性的有限的字典</strong>）是相同的，但是由于我们要编码更长的数据（256字节而非2字节），有很多可用的编码形式（在所有的8比特上编码，因此有256个不同的可能的值），我们不能用这个天真的穷举搜索了，因为这要消耗太多的时间了：我们需要使用一个聪明的算法，并且无限域理论会帮我们做到这一点，仅仅通过给定一个<strong>结构</strong>。</p>
+<h1 id="无限域理论"><a href="#无限域理论" class="headerlink" title="无限域理论"></a>无限域理论</h1><h2 id="数学域介绍"><a href="#数学域介绍" class="headerlink" title="数学域介绍"></a>数学域介绍</h2><p>在讨论用于信息编码的Reed–Solomon码之前，我们介绍一点数学基础是有好处的。</p>
+<p>我们要为8比特字节定义一套加减乘除运算规则，并且他们的结果也是8比特字节，这是为了避免溢出。天真一点，我们可能会尝试用通常意义上的加减乘除来定义这些操作，然后再把结果模256来使其避免溢出。这也正是我们接下来要做的，这就叫做Galois域2^8。你能想象出来为什么这对什么都管用，却单单对除法不行：7/5等于多少呢？</p>
+<p>这里简要介绍下Galois域：<a href="https://en.wikipedia.org/wiki/Finite_field" target="_blank" rel="noopener">无线域（finite field）</a>是一个数字集合，所谓域要包含6个属性：闭合律（Closure），结合律（Associative），分配律（Distributive），恒等（Identity）和可逆性（Inverse）。简单点说，使用域是为了研究这个域中数与数之间的关系，并且把这个结果应用到其他的拥有同样属性的域中。举例来说，实数集ℝ就是一个域。换句话说，<strong>数学域（mathematical fields）</strong>研究一个数字集合的结构。</p>
+<p>然而，整数集ℤ就不是一个域了，因为我们上面说过，不是所有的除法都被定义了（比如7/5），这违反了乘法的可逆属性（比如7<em>x=5中的x就不存在）。解决这个问题的一个简单方法就是，用一个质数取模，比如用2：这样，我们就可以保证7</em>x=5是存在的，因为我们马上会给它包装一下。ℤ模2被称为Galois域（Galois Field），并且任何能够被2整除的数都叫Galois域（因为我们需要用质数取模），例如256，一个8比特数的值，就可以简化成2^8，因为我们说我们用了一个2^8的Galois域，或者GF(2^8)。说人话就是，2是这个域的特征（characteristic），而8是指数，256是这个域的势（cardinality）。关于无线域的信息在<a href="http://research.swtch.com/field" target="_blank" rel="noopener">这里</a>。</p>
+<p>这里我们将要为Galois域定义那些你用于整数的常用数学操作，但是会适应GF(2^8)，GF(2^8)基本是在做着常用的操作，只是会模2^8而已。</p>
+<p>另一个在GF(2)和GF(2^8)之间建立联系的方法是，把GF(2^8)看成代表了一个含有8个二进制系数的多项式。例如，在GF(2^8)中，170等于10101010=1<em>x^7 + 0</em>x^6 + 1<em>x^5 + 0</em>x^4 + 1<em>x^3 + 0</em>x^2 + 1*x + 0 = x^7 + x^5 + x^3 + x。两个表达式是等价的，只是在第一个表达式的情况中170是十进制的，第二个表达式是二进制的，二进制表达式会被约定俗成地看成一个多项式（<a href="https://en.wikipedia.org/wiki/Finite_field_arithmetic#Effective_polynomial_representation" target="_blank" rel="noopener">用在GF(2^p)上的解释在这里</a>）。后者经常被用在学术书籍和硬件实现中（因为逻辑门电路和寄存器是工作在二进制级别的）。对于软件实现，大家更偏好十进制，因为它写出来的代码更清楚也更接近数学运算（这也是我们这这篇文章中使用的代码的方式，除了那些不得不使用二进制表达式的）。</p>
+<p>任何情况下，都不要把这两个东西混为一谈，那就是，代表单个GF(2^p)表达式的多项式（每个系数是一个比特或者说布尔值：0或者1），和代表一系列GF(2^p)表达式的多项式（这种情况下，多项式等同于信息+RS码，每一个系数都是介于0和2^p之间的值，并且表示这个信息+RS码的一个字符）。我们首先讨论单个表达式上的操作，然后才到一系列表达式构成的多项式上的操作。</p>
+<h2 id="加减法"><a href="#加减法" class="headerlink" title="加减法"></a>加减法</h2><p>在基数为2的Galois域中，加法和减法都用异或来代替了。这是符合逻辑的：加法模2恰好像是XOR操作，减法模2也正好跟加法模2一样。这个之所以可行是因为在Galois域中加减法都是不进位的。（译者注：这里讨论的加减法都是2进制按位加减，且不进位不借位，所以结果等价于异或）</p>
+<p>来思考我们的8比特数值作为系数模2的多项式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0101 + 0110 = 0101 - 0110 = 0101 XOR 0110 = 0011</span><br></pre></td></tr></table></figure>
+<p>同样的方式（两个单 GF(2^8)整数的二进制表现形式）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(x^2 + 1) + (x^2 + x) = 2 x^2 + x + 1 = 0 x^2 + x + 1 = x + 1</span><br></pre></td></tr></table></figure>
+<p>由于 (a ^ a) = 0，每个数是它自身的相反数，因此(x-y)等同于(x+y)。</p>
+<p>注意在这本书中，你会发现我们用加减法来定义GF整数的数学操作，但是在实践中，你仅仅需要XOR（除非是在Galois域中，其他域中这不是正确的）。</p>
+<p>这里是等价的Python代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_add</span><span class="params">(x, y)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> x ^ y</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_sub</span><span class="params">(x, y)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> x ^ y <span class="comment"># in binary galois field, subtraction is just the same as addition (since we mod 2)</span></span><br></pre></td></tr></table></figure>
+<h2 id="乘法"><a href="#乘法" class="headerlink" title="乘法"></a>乘法</h2><p>乘法同样地是基于多项式乘法。简单地把输入写成多项式形式，然后像平常一样把它们按照分配律乘开。举个例子，10001001乘以00101010计算如下：</p>
+<p><img src="/2018/06/26/Reed–Solomon-codes-for-coders/Multiplication.png" width="500" height="1000" alt="Multiplication"></p>
+<p>通过一个改版的小学里教的那种标准乘法我们可以得到相同的结果，其中我们把加用异或代替了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">       10001001</span><br><span class="line">*      00101010</span><br><span class="line">       --------</span><br><span class="line">      10001001</span><br><span class="line">^   10001001</span><br><span class="line">^ 10001001</span><br><span class="line">  --------</span><br><span class="line">  1010001111010</span><br></pre></td></tr></table></figure>
+<p>注意：这里的XOR乘法是不进位的！如果你带着进位做，那么你将会得到错误的结果1011001111010，它有着一个额外的项x^9，而正确的结果是1010001111010。</p>
+<p>这里给出了一个在单个GF(2^8)整数相乘多项式的Python实现。</p>
+<p>注意：这个函数（以及接下来的一些函数）使用了许多二进制操作，例如&gt;&gt;和&lt;&lt;，因为他们都能很快也很简明地执行我们想要的东西。这些操作在很多语言中是可行的，它们不是Python才有的，并且你可以从<a href="https://wiki.python.org/moin/BitwiseOperators" target="_blank" rel="noopener">这里</a>了解到很多信息。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cl_mul</span><span class="params">(x,y)</span>:</span></span><br><span class="line">    <span class="string">'''Bitwise carry-less multiplication on integers'''</span></span><br><span class="line">    z = <span class="number">0</span></span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> (y&gt;&gt;i) &gt; <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">if</span> y &amp; (<span class="number">1</span>&lt;&lt;i):</span><br><span class="line">            z ^= x&lt;&lt;i</span><br><span class="line">        i += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> z</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// go code</span></span><br><span class="line"><span class="comment">// cl_mul 表示证书的按位不进位乘法</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">cl_mul</span><span class="params">(x, y <span class="keyword">uint</span>)</span> <span class="title">uint</span></span> &#123;</span><br><span class="line">        <span class="keyword">var</span> z <span class="keyword">uint</span> = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> i <span class="keyword">uint</span> = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> ; (y &gt;&gt; i) &gt; <span class="number">0</span>; i++ &#123;</span><br><span class="line">                <span class="keyword">if</span> y&amp;(<span class="keyword">uint</span>(<span class="number">1</span>)&lt;&lt;i) != <span class="number">0</span> &#123;</span><br><span class="line">                        z ^= x &lt;&lt; i</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> z</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然了，结果不再是8比特字节了（在这个例子中，是13比特），因此我们还要再做一步才算完成。结果要用之前说的长除的方法来通过模100011101（为什么选这个数将会在代码中解释）来约减。在这个例子中，这叫“模约”，因为基本上，我们所做的是通过模来除并保留余数。得到我们例子中的最终结果是11000011。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">  1010001111010</span><br><span class="line">^ 100011101</span><br><span class="line">  ---------</span><br><span class="line">  0010110101010</span><br><span class="line">  ^ 100011101</span><br><span class="line">    ---------</span><br><span class="line">    00111011110</span><br><span class="line">    ^ 100011101</span><br><span class="line">      ---------</span><br><span class="line">      011000011</span><br></pre></td></tr></table></figure>
+<p>这里是整个带有模约的Galois域乘法的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_mult_noLUT</span><span class="params">(x, y, prim=<span class="number">0</span>)</span>:</span></span><br><span class="line">    <span class="string">'''Multiplication in Galois Fields without using a precomputed look-up table (and thus it's slower)</span></span><br><span class="line"><span class="string">    by using the standard carry-less multiplication + modular reduction using an irreducible prime polynomial'''</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">### Define bitwise carry-less operations as inner functions ###</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cl_mult</span><span class="params">(x,y)</span>:</span></span><br><span class="line">        <span class="string">'''Bitwise carry-less multiplication on integers'''</span></span><br><span class="line">        z = <span class="number">0</span></span><br><span class="line">        i = <span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> (y&gt;&gt;i) &gt; <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">if</span> y &amp; (<span class="number">1</span>&lt;&lt;i):</span><br><span class="line">                z ^= x&lt;&lt;i</span><br><span class="line">            i += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> z</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">bit_length</span><span class="params">(n)</span>:</span></span><br><span class="line">        <span class="string">'''Compute the position of the most significant bit (1) of an integer. Equivalent to int.bit_length()'''</span></span><br><span class="line">        bits = <span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> n &gt;&gt; bits: bits += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> bits</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cl_div</span><span class="params">(dividend, divisor=None)</span>:</span></span><br><span class="line">        <span class="string">'''Bitwise carry-less long division on integers and returns the remainder'''</span></span><br><span class="line">        <span class="comment"># Compute the position of the most significant bit for each integers</span></span><br><span class="line">        dl1 = bit_length(dividend)</span><br><span class="line">        dl2 = bit_length(divisor)</span><br><span class="line">        <span class="comment"># If the dividend is smaller than the divisor, just exit</span></span><br><span class="line">        <span class="keyword">if</span> dl1 &lt; dl2:</span><br><span class="line">            <span class="keyword">return</span> dividend</span><br><span class="line">        <span class="comment"># Else, align the most significant 1 of the divisor to the most significant 1 of the dividend (by shifting the divisor)</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(dl1-dl2,<span class="number">-1</span>,<span class="number">-1</span>):</span><br><span class="line">            <span class="comment"># Check that the dividend is divisible (useless for the first iteration but important for the next ones)</span></span><br><span class="line">            <span class="keyword">if</span> dividend &amp; (<span class="number">1</span> &lt;&lt; i+dl2<span class="number">-1</span>):</span><br><span class="line">                <span class="comment"># If divisible, then shift the divisor to align the most significant bits and XOR (carry-less subtraction)</span></span><br><span class="line">                dividend ^= divisor &lt;&lt; i</span><br><span class="line">        <span class="keyword">return</span> dividend</span><br><span class="line">    </span><br><span class="line">    <span class="comment">### Main GF multiplication routine ###</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Multiply the gf numbers</span></span><br><span class="line">    result = cl_mult(x,y)</span><br><span class="line">    <span class="comment"># Then do a modular reduction (ie, remainder from the division) with an irreducible primitive polynomial so that it stays inside GF bounds</span></span><br><span class="line">    <span class="keyword">if</span> prim &gt; <span class="number">0</span>:</span><br><span class="line">        result = cl_div(result, prim)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// go code</span></span><br><span class="line"><span class="comment">// cl_mul 表示证书的按位不进位乘法</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">cl_mul</span><span class="params">(x, y <span class="keyword">uint</span>)</span> <span class="title">uint</span></span> &#123;</span><br><span class="line">        <span class="keyword">var</span> z <span class="keyword">uint</span> = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> i <span class="keyword">uint</span> = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> ; (y &gt;&gt; i) &gt; <span class="number">0</span>; i++ &#123;</span><br><span class="line">                <span class="keyword">if</span> y&amp;(<span class="keyword">uint</span>(<span class="number">1</span>)&lt;&lt;i) != <span class="number">0</span> &#123;</span><br><span class="line">                        z ^= x &lt;&lt; i</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> z</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// bit_length 表示一个整数的有意义的1的位数。相当于int.bit_length()</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">bit_length</span><span class="params">(n <span class="keyword">uint</span>)</span> <span class="title">uint</span></span> &#123;</span><br><span class="line">        <span class="keyword">var</span> bits <span class="keyword">uint</span></span><br><span class="line">        <span class="keyword">for</span> n&gt;&gt;bits != <span class="number">0</span> &#123;</span><br><span class="line">                bits++</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> bits</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// cl_div 表示按位不进位整数除法，返回余数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">cl_div</span><span class="params">(dividend, divisor <span class="keyword">uint</span>)</span> <span class="title">uint</span></span> &#123;</span><br><span class="line">        dl1 := bit_length(dividend)</span><br><span class="line">        dl2 := bit_length(divisor)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果被除数小于除数，直接返回</span></span><br><span class="line">        <span class="keyword">if</span> dl1 &lt; dl2 &#123;</span><br><span class="line">                <span class="keyword">return</span> dividend</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> i := dl1 - dl2; <span class="keyword">int</span>(i) &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">                <span class="comment">// 检查被除数是不是可除，第一个迭代没用，但是后续会很重要</span></span><br><span class="line">                <span class="comment">// TODO</span></span><br><span class="line">                fmt.Println(dividend, i)</span><br><span class="line">                <span class="keyword">if</span> (dividend &amp; (<span class="keyword">uint</span>(<span class="number">1</span>) &lt;&lt; (i + dl2 - <span class="number">1</span>))) != <span class="number">0</span> &#123;</span><br><span class="line">                        <span class="comment">// 如果可以除，那么就移位除数对齐不为0的位并异或（不进位除）</span></span><br><span class="line">                        dividend = dividend ^ (divisor &lt;&lt; i)</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dividend</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Multiply the gf numbers</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">gf_mult_noLUT</span><span class="params">(x, y, prim <span class="keyword">uint</span>)</span> <span class="title">uint</span></span> &#123;</span><br><span class="line">        result := cl_mul(x, y)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> prim &gt; <span class="number">0</span> &#123;</span><br><span class="line">                result = cl_div(result, prim)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a = 0b10001001</span><br><span class="line">&gt;&gt;&gt; b = 0b00101010</span><br><span class="line">&gt;&gt;&gt; print bin(gf_mult_noLUT(a, b, 0)) # multiplication only</span><br><span class="line">0b1010001111010</span><br><span class="line">&gt;&gt;&gt; print bin(gf_mult_noLUT(a, b, 0x11d)) # multiplication + modular reduction</span><br><span class="line">0b11000011</span><br></pre></td></tr></table></figure>
+<p>为什么要模100011101（十六进制是0x11d）呢？数学道理有点复杂，但是简单来说，100011101代表了第八等级不能约多项式（表示它不能被表示成两个小点的多项式的产出）。这个数叫做原始多项式（primitive polynomial）或者不可约多项式（irreducible polynomial），或者质数多项式（prime polynomial）（接下来的文章我们就用最后的这个名字）。除法就是要表现好点，那就是停留在Galois域的范围内，但是不能有重复值。我们还可以选择其他的值，但是他们本质上都是一样的，并且100011101 (0x11d)是一个用于Reed–Solomon编码的常用质数多项式。如果你好奇如何产生那些质数，请看<a href="https://en.wikiversity.org/wiki/Reed%E2%80%93Solomon_codes_for_coders/Additional_information#Universal_Reed-Solomon_Codec" target="_blank" rel="noopener">附录</a>。</p>
+<p>额外的关于质数多项式的信息（你可以跳过这部分）：什么是一个质数多项式？它等价于一个质数，但是要是在Galois域中。记住一个Galois域是乘2得到的构建者（generator）。当然了，一个质数在标准数学中不可能是2的倍数，但是在Galois域中可以的。为什么需要一个质数多项式呢？因为为了停留在域的边界呢，我们需要对任何超出Galois域的值取模。为什么我们不能只是模取Galois域的大小呢？因为我们这么做的话，最终只会得到好多重复的值，我们想要在这个域中获得尽可能多的唯一的值，因此一个数做一个质数多项式的取模运算或者异或运算时候，一般是有且仅有一个投影。</p>
+<p>感兴趣的读者注意了：这是一个通过聪明的算法可以做地更好的例子，以下就是一个通过某个方法能够使GF数乘法获得更加简明和快速的方法，这是通过<a href="http://www.cut-the-knot.org/Curriculum/Algebra/PeasantMultiplication.shtml" target="_blank" rel="noopener">俄罗斯农名乘法算法（Russian Peasant Multiplication algorithm）</a>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_mult_noLUT</span><span class="params">(x, y, prim=<span class="number">0</span>, field_charac_full=<span class="number">256</span>, carryless=True)</span>:</span></span><br><span class="line">    <span class="string">'''Galois Field integer multiplication using Russian Peasant Multiplication algorithm (faster than the standard multiplication + modular reduction).</span></span><br><span class="line"><span class="string">    If prim is 0 and carryless=False, then the function produces the result for a standard integers multiplication (no carry-less arithmetics nor modular reduction).'''</span></span><br><span class="line">    r = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> y: <span class="comment"># while y is above 0</span></span><br><span class="line">        <span class="keyword">if</span> y &amp; <span class="number">1</span>: r = r ^ x <span class="keyword">if</span> carryless <span class="keyword">else</span> r + x <span class="comment"># y is odd, then add the corresponding x to r (the sum of all x's corresponding to odd y's will give the final product). Note that since we're in GF(2), the addition is in fact an XOR (very important because in GF(2) the multiplication and additions are carry-less, thus it changes the result!).</span></span><br><span class="line">        y = y &gt;&gt; <span class="number">1</span> <span class="comment"># equivalent to y // 2</span></span><br><span class="line">        x = x &lt;&lt; <span class="number">1</span> <span class="comment"># equivalent to x*2</span></span><br><span class="line">        <span class="keyword">if</span> prim &gt; <span class="number">0</span> <span class="keyword">and</span> x &amp; field_charac_full: x = x ^ prim <span class="comment"># GF modulo: if x &gt;= 256 then apply modular reduction using the primitive polynomial (we just subtract, but since the primitive number can be above 256 then we directly XOR).</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> r</span><br></pre></td></tr></table></figure>
+<p>注意了，如果在最后的这个函数中传入prim=0和carryless=False的话，就会得到标准的整数乘法结果（因此，你会看到进位和不进位对于乘法影响的区别）。</p>
+<h2 id="基于对数的乘法"><a href="#基于对数的乘法" class="headerlink" title="基于对数的乘法"></a>基于对数的乘法</h2><p>上面描述的过程不是一个实现Galois域最方便的方法。两个数相乘花费了高达8次的乘法循环迭代，伴随着高达8次的乘法循环迭代。然而，我们可以通过使用查询表来实现没有循环的乘法。在内存中构造一个乘法表将会是一个方案，可是那将会需要64k那么大的表。接下来要讲的方法将会紧凑点。</p>
+<p>首先，注意到乘以2=00000010是一个特别容易的事情（按照惯例，这个数被称为<strong>α</strong>或者<strong>构建者数(generator number)</strong>）：简单地左移一位，然后再用模100011101异或如果需要的话（为什么说在我们的例子中XOR对于取模来说已经足够了，这个问题作为练习留给读者）。这里给出α的一些幂值。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">α^0 = 00000001	α^4 = 00010000	α^8  = 00011101	α^12 = 11001101</span><br><span class="line">α^1 = 00000010	α^5 = 00100000	α^9  = 00111010	α^13 = 10000111</span><br><span class="line">α^2 = 00000100	α^6 = 01000000	α^10 = 01110100	α^14 = 00010011</span><br><span class="line">α^3 = 00001000	α^7 = 10000000	α^11 = 11101000	α^15 = 00100110</span><br></pre></td></tr></table></figure>
+<p>如果这个表格照这个样子类推下去，α的幂都不会重复，除非到了α^255 = 00000001。因此这个域中的每个值，除了0以外，都是α的某次幂。我们定义出来的元素α就被认为是<a href="https://en.wikipedia.org/wiki/Primitive_element_(finite_field" target="_blank" rel="noopener">原始元素(primitive element)</a>)或者Galois域构造者。</p>
+<p>观察发现另外一种方法来实现乘法：通过α的指数加法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">10001001 * 00101010 = α^74 * α^142 = α^(74 + 142) = α^216 = 11000011</span><br></pre></td></tr></table></figure>
+<p>问题来了，我们怎么找到和10001001对应的 α 的幂呢？这个就是被称为<a href="https://en.wikipedia.org/wiki/Discrete_logarithm" target="_blank" rel="noopener">离散数学（discrete logarithm）</a>问题，而且没有已知的特别有效的解决方案。然后，因为这个域中只有256个元素，我们可以很容易地构建一个对数表。与此同时，一个对应的反对数（指数）表也是有用的。更多有用的信息可以参阅<a href="https://en.wikipedia.org/wiki/Finite_field_arithmetic#Implementation_tricks" target="_blank" rel="noopener">这里</a>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">gf_exp = [<span class="number">0</span>] * <span class="number">512</span> <span class="comment"># Create list of 512 elements. In Python 2.6+, consider using bytearray</span></span><br><span class="line">gf_log = [<span class="number">0</span>] * <span class="number">256</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">init_tables</span><span class="params">(prim=<span class="number">0x11d</span>)</span>:</span></span><br><span class="line">    <span class="string">'''Precompute the logarithm and anti-log tables for faster computation later, using the provided primitive polynomial.'''</span></span><br><span class="line">    <span class="comment"># prim is the primitive (binary) polynomial. Since it's a polynomial in the binary sense,</span></span><br><span class="line">    <span class="comment"># it's only in fact a single galois field value between 0 and 255, and not a list of gf values.</span></span><br><span class="line">    <span class="keyword">global</span> gf_exp, gf_log</span><br><span class="line">    gf_exp = [<span class="number">0</span>] * <span class="number">512</span> <span class="comment"># anti-log (exponential) table</span></span><br><span class="line">    gf_log = [<span class="number">0</span>] * <span class="number">256</span> <span class="comment"># log table</span></span><br><span class="line">    <span class="comment"># For each possible value in the galois field 2^8, we will pre-compute the logarithm and anti-logarithm (exponential) of this value</span></span><br><span class="line">    x = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, <span class="number">255</span>):</span><br><span class="line">        gf_exp[i] = x <span class="comment"># compute anti-log for this value and store it in a table</span></span><br><span class="line">        gf_log[x] = i <span class="comment"># compute log at the same time</span></span><br><span class="line">        x = gf_mult_noLUT(x, <span class="number">2</span>, prim)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># If you use only generator==2 or a power of 2, you can use the following which is faster than gf_mult_noLUT():</span></span><br><span class="line">        <span class="comment">#x &lt;&lt;= 1 # multiply by 2 (change 1 by another number y to multiply by a power of 2^y)</span></span><br><span class="line">        <span class="comment">#if x &amp; 0x100: # similar to x &gt;= 256, but a lot faster (because 0x100 == 256)</span></span><br><span class="line">            <span class="comment">#x ^= prim # substract the primary polynomial to the current value (instead of 255, so that we get a unique set made of coprime numbers), this is the core of the tables generation</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Optimization: double the size of the anti-log table so that we don't need to mod 255 to</span></span><br><span class="line">    <span class="comment"># stay inside the bounds (because we will mainly use this table for the multiplication of two GF numbers, no more).</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">255</span>, <span class="number">512</span>):</span><br><span class="line">        gf_exp[i] = gf_exp[i - <span class="number">255</span>]</span><br><span class="line">    <span class="keyword">return</span> [gf_log, gf_exp]</span><br></pre></td></tr></table></figure>
+<p>Python注意事项：range操作符的右括号是开放的，因此gf_exp[255]没有被赋值两次。</p>
+<p>gf_exp表示超过大小的，因为为了简化乘法函数。这样的话，我们就不必要去检查从而确信gf_log[x] + gf_log[y]在这个表的大小范围内了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_mul</span><span class="params">(x,y)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> x==<span class="number">0</span> <span class="keyword">or</span> y==<span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">return</span> gf_exp[gf_log[x] + gf_log[y]] <span class="comment"># should be gf_exp[(gf_log[x]+gf_log[y])%255] if gf_exp wasn't oversized</span></span><br></pre></td></tr></table></figure>
+<h2 id="除法"><a href="#除法" class="headerlink" title="除法"></a>除法</h2><p>另外一个对数表方法的优势是，它允许我们通过幂的差来定义除法。在下面的代码中，加上255是为了确保差不是负数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_div</span><span class="params">(x,y)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> y==<span class="number">0</span>:</span><br><span class="line">        <span class="keyword">raise</span> ZeroDivisionError()</span><br><span class="line">    <span class="keyword">if</span> x==<span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">return</span> gf_exp[(gf_log[x] + <span class="number">255</span> - gf_log[y]) % <span class="number">255</span>]</span><br></pre></td></tr></table></figure>
+<p>Python注意事项：raise语句抛出一个异常，并终止gf_div函数的执行。</p>
+<p>根据除法的定义，<code>gf_div(gf_mul(x,y),y)==x</code>对于任何的x和非零y都是成立的。</p>
+<p>读者中的高级程序员可能会觉得写一个Galois域算法的封装是有意思的。<a href="https://en.wikipedia.org/wiki/Operator_overloading" target="_blank" rel="noopener">操作符重载（Operator overloading）</a>可以用来使用大家熟悉的*和/来代替对于gf_mul和gf_div的调用，但是这会导致微妙究竟在执行什么操作的困惑。这样的细节可以以使得这个类更加广泛使用的方式推广。例如，<a href="https://en.wikipedia.org/wiki/Aztec_Code" target="_blank" rel="noopener">Aztec编码</a>采用了5个不同的元素大小从4比特到12比特不等的Galois域。</p>
+<h2 id="幂和倒数"><a href="#幂和倒数" class="headerlink" title="幂和倒数"></a>幂和倒数</h2><p>当我们计算幂和倒数的时候，对数表方法再一次地简化和加速了我们的计算过程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_pow</span><span class="params">(x, power)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> gf_exp[(gf_log[x] * power) % <span class="number">255</span>]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_inverse</span><span class="params">(x)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> gf_exp[<span class="number">255</span> - gf_log[x]] <span class="comment"># gf_inverse(x) == gf_div(1, x)</span></span><br></pre></td></tr></table></figure>
+<h2 id="多项式"><a href="#多项式" class="headerlink" title="多项式"></a>多项式</h2><p>在接续探讨Reed–Solomon前，我们需要来定义几个系数是Galois域元素的多项的操作。这里有一个潜在的导致混淆的根源，因为元素本身也是被描述成多项式的；我的建议是不要想太多了。导致混淆更加厉害的是，x也被用成了占位符。这里的x跟我们之前说的x没有半毛钱关系，因此不要把它们搞混了。</p>
+<p>之前用于Galois域元素的二进制表达方法在这里变得笨重而不便了，因此我将换用十六进制。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">00000001 x^4 + 00001111 x^3 + 00110110 x^2 + 01111000 x + 01000000 = 01 x^4 + 0f x^3 + 36 x^2 + 78 x + 40</span><br></pre></td></tr></table></figure>
+<p>在python中，多项式被表示成一系列降序幂的数字集合，因此上面的多项式变成了[ 0x01, 0x0f, 0x36, 0x78, 0x40 ]。（反序表达也被用过的，两种方法各有优劣。）</p>
+<p>第一次函数将一个多项式跟一个标量相乘。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_poly_scale</span><span class="params">(p,x)</span>:</span></span><br><span class="line">    r = [<span class="number">0</span>] * len(p)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(p)):</span><br><span class="line">        r[i] = gf_mul(p[i], x)</span><br><span class="line">    <span class="keyword">return</span> r</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// go code</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">gf_poly_scale</span><span class="params">(p []<span class="keyword">uint</span>, x <span class="keyword">uint</span>)</span> []<span class="title">uint</span></span> &#123;</span><br><span class="line">        r := <span class="built_in">make</span>([]<span class="keyword">uint</span>, <span class="built_in">len</span>(p))</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="built_in">len</span>(p); i++ &#123;</span><br><span class="line">                r[i] = gf_mul(p[i], x)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> r</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Python程序员注意了，这个函数写得不像Python。它本可以用<a href="https://en.wikipedia.org/wiki/List_comprehension" target="_blank" rel="noopener">列表理解（list comprehension）</a>写得更加优雅一点，但是在语言特性上我限制了我自己，这样它们可以被很容易地转成其他的编程语言。</p>
+<p>这个函数把两个多项式“加”起来了（跟往常一样，用了异或）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_poly_add</span><span class="params">(p,q)</span>:</span></span><br><span class="line">    r = [<span class="number">0</span>] * max(len(p),len(q))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,len(p)):</span><br><span class="line">        r[i+len(r)-len(p)] = p[i]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,len(q)):</span><br><span class="line">        r[i+len(r)-len(q)] ^= q[i]</span><br><span class="line">    <span class="keyword">return</span> r</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// go code</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">gf_poly_add</span><span class="params">(p, q []<span class="keyword">uint</span>)</span> []<span class="title">uint</span></span> &#123;</span><br><span class="line">        max := <span class="built_in">len</span>(p)</span><br><span class="line">        <span class="keyword">if</span> max &lt; <span class="built_in">len</span>(q) &#123;</span><br><span class="line">                max = <span class="built_in">len</span>(q)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        r := <span class="built_in">make</span>([]<span class="keyword">uint</span>, max)</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="built_in">len</span>(p); i++ &#123;</span><br><span class="line">                r[i+<span class="built_in">len</span>(r)-<span class="built_in">len</span>(p)] = p[i] <span class="comment">// 译注：右对齐，不管pq谁长谁短，一致处理</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="built_in">len</span>(q); i++ &#123;</span><br><span class="line">                r[i+<span class="built_in">len</span>(r)-<span class="built_in">len</span>(p)] ^= q[i]</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> r</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来的方程将两个多项式相乘。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_poly_mul</span><span class="params">(p,q)</span>:</span></span><br><span class="line">    <span class="string">'''Multiply two polynomials, inside Galois Field'''</span></span><br><span class="line">    <span class="comment"># Pre-allocate the result array</span></span><br><span class="line">    r = [<span class="number">0</span>] * (len(p)+len(q)<span class="number">-1</span>)</span><br><span class="line">    <span class="comment"># Compute the polynomial multiplication (just like the outer product of two vectors,</span></span><br><span class="line">    <span class="comment"># we multiply each coefficients of p with all coefficients of q)</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">0</span>, len(q)):</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(p)):</span><br><span class="line">            r[i+j] ^= gf_mul(p[i], q[j]) <span class="comment"># equivalent to: r[i + j] = gf_add(r[i+j], gf_mul(p[i], q[j]))</span></span><br><span class="line">                                                         <span class="comment"># -- you can see it's your usual polynomial multiplication</span></span><br><span class="line">    <span class="keyword">return</span> r</span><br></pre></td></tr></table></figure>
+<p>最后，我们需要一个函数来针对给定x的值求出多项式的标量值。<a href="https://en.wikipedia.org/wiki/Horner%27s_method" target="_blank" rel="noopener">Horner的方法</a>可以用来避免显示计算x的幂。Horner方法原理是通过连续的因式分解，从而我们一直是处理x^1，因而避免了计算高阶的项：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">01x^4 + 0f x^3 + 36 x^2 + 78 x + 40 = (((01 x + 0f) x + 36) x + 78) x + 40</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_poly_eval</span><span class="params">(poly, x)</span>:</span></span><br><span class="line">    <span class="string">'''Evaluates a polynomial in GF(2^p) given the value for x. This is based on Horner's scheme for maximum efficiency.'''</span></span><br><span class="line">    y = poly[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>, len(poly)):</span><br><span class="line">        y = gf_mul(y, x) ^ poly[i]</span><br><span class="line">    <span class="keyword">return</span> y</span><br></pre></td></tr></table></figure>
+<p>还剩下一个我们需要的多项式操作：多项式除法。这个比其他的多项式操作要复杂些，因此我们将在下一章来学习它，和Reed–Solomon编码一起。</p>
+<h1 id="Reed–Solomon编码"><a href="#Reed–Solomon编码" class="headerlink" title="Reed–Solomon编码"></a>Reed–Solomon编码</h1><p>现在预赛已经可以起开了，我们准备开始看Reed–Solomon编码。</p>
+<h2 id="编码理论透析"><a href="#编码理论透析" class="headerlink" title="编码理论透析"></a>编码理论透析</h2><p>但是首先，我们为什么前面要学无限域和多项式呢？因为，这是想Reed–Solomon这样的纠错码的精髓：我们不是把信息看成一系列ASCII数字，而是自带精心定义的<strong>无限域算法规则</strong>的<strong>多项式</strong>。换句话说，通过使用多项式和无限域理论和呈现数据，<strong>我们为数据增加了一个结构</strong>。信息的值还是一样的，但是这种附着其上的结构概念可以让我们用精心定义的数学规则来操作这些信息，操作这些字符。这个结构，就是我们一直知道的因为它独立于数据之外，它可以让我们得以修复受损的信息。</p>
+<p>那么，即便是在你的代码实现中，你都不会选择显式地出现多项式和无限域理论，这些理论本质上是为了纠错码能够工作，并且你会发现这些理论是任何实现的基础（甚至是隐含的）。</p>
+<p>那么我们来将这些理论付诸实践吧。</p>
+<h2 id="RS编码"><a href="#RS编码" class="headerlink" title="RS编码"></a>RS编码</h2><h3 id="编码概述"><a href="#编码概述" class="headerlink" title="编码概述"></a>编码概述</h3><p>类似于BCH码，Reed–Solomon通过使用不可约构建者多项式（irreducible generator polynomial）来分解代表信息数据的多项式，从而达到编码的目的，那么余数就是RS码，我们会把这个余数追加在原始信息之后。</p>
+<p>为什么要这么做呢？我们先前说过，BCH编码以及其他的大多数纠错编码背后的原理是，通过使用一个带有区分度很大的信息元的简化字典来使得信息之间的距离，信息元越长其距离越大：这里是同样的原理，首先我们用额外的编码（余数）加长了原始信息，其次因为余数基本都是唯一的（多亏了小心定义的不可约构建者多项式），那么我们就可以利用精巧的算法来推断部分的原始信息。</p>
+<p>用一个加密的近似类比来总结一下：我们说的<strong>构建者多项式</strong>就是我们的加密字典，而<strong>多项式分解</strong>就是通过字典（构建者多项式）把信息<strong>转化</strong>为RS码的操作。</p>
+<h3 id="异常管理"><a href="#异常管理" class="headerlink" title="异常管理"></a>异常管理</h3><p>为了管理错误以及我们不能纠正一个信息的情况，我们要显示一个有意义的错误信息，就是通过抛出一个异常。我们将要来搞出我们自定义的一套异常，那么用户可以很容易地捕获和管理他们：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReedSolomonError</span><span class="params">(Exception)</span>:</span></span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p>为了通过抛出我们自定义的异常来显示错误，我们可以简单地这么做：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">raise</span> ReedSolomonError(<span class="string">"Some error message"</span>)</span><br></pre></td></tr></table></figure>
+<p>然后你可以非常容易地通过try/except块捕获这个异常从而处理它：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">raise</span> ReedSolomonError(<span class="string">"Some error message"</span>)</span><br><span class="line"><span class="keyword">except</span> ReedSolomonError, e:</span><br><span class="line">    <span class="keyword">pass</span> <span class="comment"># do something here</span></span><br></pre></td></tr></table></figure>
+<h3 id="RS构建者多项式"><a href="#RS构建者多项式" class="headerlink" title="RS构建者多项式"></a>RS构建者多项式</h3><p>Reed–Solomon编码使用了一个跟BCH编码类似的<strong>构建者</strong>多项式（别和构建者数字字母混淆起来）。构建者是(x - α^n)因子的产物，QR码就是从n=0开始的。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g4(x) = (x - α^0) (x - α^1) (x - α^2) (x - α^3) = 01 x^4 + 0f x^3 + 36 x^2 + 78 x + 40</span><br></pre></td></tr></table></figure>
+<p>这里给出了一个函数可以用来计算给定数目的错误纠正符的构建者多项式。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">rs_generator_poly</span><span class="params">(nsym)</span>:</span></span><br><span class="line">    <span class="string">'''Generate an irreducible generator polynomial (necessary to encode a message into Reed-Solomon)'''</span></span><br><span class="line">    g = [<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, nsym):</span><br><span class="line">        g = gf_poly_mul(g, [<span class="number">1</span>, gf_pow(<span class="number">2</span>, i)])</span><br><span class="line">    <span class="keyword">return</span> g</span><br></pre></td></tr></table></figure>
+<p>这个函数某种程度上不是很高效，因为它每次都是分配了更大的数组给g。虽然这不太可能在实践中形成性能问题，有优化习惯的读者可能觉得重写它使g只被分配一次是有意思的，或者你能计算一次然后把g存在内存中，因为对于一个给定的nsym来说g是固定的，因此你可以重用g。</p>
+<h3 id="多项式除法"><a href="#多项式除法" class="headerlink" title="多项式除法"></a>多项式除法</h3><p>多项式除法有很多个存在的算法，最简单的莫过于高中时候教的<a href="https://en.wikipedia.org/wiki/Polynomial_long_division" target="_blank" rel="noopener">长除(long division)</a>。这个例子展示了信息<code>12 34 56</code>的计算过程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">                             12 da df</span><br><span class="line">               ______________________</span><br><span class="line">01 0f 36 78 40 ) 12 34 56 00 00 00 00</span><br><span class="line">               ^ 12 ee 2b 23 f4</span><br><span class="line">                 --------------</span><br><span class="line">                    da 7d 23 f4 00</span><br><span class="line">                  ^ da a2 85 79 84</span><br><span class="line">                    --------------</span><br><span class="line">                       df a6 8d 84 00</span><br><span class="line">                     ^ df 91 6b fc d9</span><br><span class="line">                       --------------</span><br><span class="line">                          37 e6 78 d9</span><br></pre></td></tr></table></figure>
+<p>注意：这一开始可能看起来比较复杂，但是这和你做以10为基数的多项式长除工作起来没有什么两样，它只是以10为基数而已（十六进制）。如果你理解这个例子起来有困难，你可以把这些数字转换成以10为基数，然后你马上就会看到结果是理所当然的了。</p>
+<p>余数和信息本身被串联起来了，因此编码过的信息是<code>12 34 56 37 e6 78 d9</code>。</p>
+<p>然而，长除是很慢的，因为它需要很多循环迭代来得到结果。更高效的策略可以被发明出来，例如使用<a href="https://en.wikiversity.org/wiki/Synthetic_division" target="_blank" rel="noopener">综合除法（synthetic division）</a>（也叫Horner法，一个很好的学习视频在<a href="https://www.khanacademy.org/math/algebra2/polynomial_and_rational/synthetic-division/v/synthetic-division" target="_blank" rel="noopener">这里</a>）。这里有一个函数实现了GF(2^p)多项式的扩展综合除法（扩展是因为除数是一个多项式而不是一个单项）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gf_poly_div</span><span class="params">(dividend, divisor)</span>:</span></span><br><span class="line">    <span class="string">'''Fast polynomial division by using Extended Synthetic Division and optimized for GF(2^p) computations</span></span><br><span class="line"><span class="string">    (doesn't work with standard polynomials outside of this galois field, see the Wikipedia article for generic algorithm).'''</span></span><br><span class="line">    <span class="comment"># CAUTION: this function expects polynomials to follow the opposite convention at decoding:</span></span><br><span class="line">    <span class="comment"># the terms must go from the biggest to lowest degree (while most other functions here expect</span></span><br><span class="line">    <span class="comment"># a list from lowest to biggest degree). eg: 1 + 2x + 5x^2 = [5, 2, 1], NOT [1, 2, 5]</span></span><br><span class="line"></span><br><span class="line">    msg_out = list(dividend) <span class="comment"># Copy the dividend</span></span><br><span class="line">    <span class="comment">#normalizer = divisor[0] # precomputing for performance</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(dividend) - (len(divisor)<span class="number">-1</span>)):</span><br><span class="line">        <span class="comment">#msg_out[i] /= normalizer # for general polynomial division (when polynomials are non-monic), the usual way of using</span></span><br><span class="line">                                  <span class="comment"># synthetic division is to divide the divisor g(x) with its leading coefficient, but not needed here.</span></span><br><span class="line">        coef = msg_out[i] <span class="comment"># precaching</span></span><br><span class="line">        <span class="keyword">if</span> coef != <span class="number">0</span>: <span class="comment"># log(0) is undefined, so we need to avoid that case explicitly (and it's also a good optimization).</span></span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">1</span>, len(divisor)): <span class="comment"># in synthetic division, we always skip the first coefficient of the divisior,</span></span><br><span class="line">                                              <span class="comment"># because it's only used to normalize the dividend coefficient</span></span><br><span class="line">                <span class="keyword">if</span> divisor[j] != <span class="number">0</span>: <span class="comment"># log(0) is undefined</span></span><br><span class="line">                    msg_out[i + j] ^= gf_mul(divisor[j], coef) <span class="comment"># equivalent to the more mathematically correct</span></span><br><span class="line">                                                               <span class="comment"># (but xoring directly is faster): msg_out[i + j] += -divisor[j] * coef</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># The resulting msg_out contains both the quotient and the remainder, the remainder being the size of the divisor</span></span><br><span class="line">    <span class="comment"># (the remainder has necessarily the same degree as the divisor -- not length but degree == length-1 -- since it's</span></span><br><span class="line">    <span class="comment"># what we couldn't divide from the dividend), so we compute the index where this separation is, and return the quotient and remainder.</span></span><br><span class="line">    separator = -(len(divisor)<span class="number">-1</span>)</span><br><span class="line">    <span class="keyword">return</span> msg_out[:separator], msg_out[separator:] <span class="comment"># return quotient, remainder.</span></span><br></pre></td></tr></table></figure>
+<h3 id="Encoding-main-function"><a href="#Encoding-main-function" class="headerlink" title="Encoding main function"></a>Encoding main function</h3><p>现在，这里给出一个如何编码一个信息获得一个RS编码的方法的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">rs_encode_msg</span><span class="params">(msg_in, nsym)</span>:</span></span><br><span class="line">    <span class="string">'''Reed-Solomon main encoding function'''</span></span><br><span class="line">    gen = rs_generator_poly(nsym)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Pad the message, then divide it by the irreducible generator polynomial</span></span><br><span class="line">    _, remainder = gf_poly_div(msg_in + [<span class="number">0</span>] * (len(gen)<span class="number">-1</span>), gen)</span><br><span class="line">    <span class="comment"># The remainder is our RS code! Just append it to our original message to get our full codeword (this represents a polynomial of max 256 terms)</span></span><br><span class="line">    msg_out = msg_in + remainder</span><br><span class="line">    <span class="comment"># Return the codeword</span></span><br><span class="line">    <span class="keyword">return</span> msg_out</span><br></pre></td></tr></table></figure>
+<p>很简单，是不是？加密其实是Reed–Solomon中最简单的部分，并且总是用同样的方法（多项式除法）。解码是Reed–Solomon中最难的部分，你会发现根据你的需要不同而有很多不同的算法，但是我们一会再碰这个。</p>
+<p>这个函数是很快的，但是对于实用还是太慢了，特别是在Python中。还有一些使用各种各样技巧的方法来优化速度。</p>
+<p>(未完待续)</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/translation/" rel="tag"># translation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/26/google-cpp-style/" rel="prev" title="《Google C++风格指南》读书笔记">
+                《Google C++风格指南》读书笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div id="gitalk-container">
+    </div>
+
+  
+
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">lylex</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/your-user-name" target="_blank" title="GitHub"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://twitter.com/your-user-name" target="_blank" title="Twitter"><i class="fa fa-fw fa-globe"></i>Twitter</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://qianzhou.tech/" title="Home" target="_blank">Home</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#译-为程序员而作的Reed–Solomon编码详解"><span class="nav-number">1.</span> <span class="nav-text">[译]为程序员而作的Reed–Solomon编码详解</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#纠错原理"><span class="nav-number"></span> <span class="nav-text">纠错原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#QR码结构"><span class="nav-number"></span> <span class="nav-text">QR码结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#掩码"><span class="nav-number">1.</span> <span class="nav-text">掩码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#格式信息"><span class="nav-number">2.</span> <span class="nav-text">格式信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#信息数据"><span class="nav-number">3.</span> <span class="nav-text">信息数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解码"><span class="nav-number">4.</span> <span class="nav-text">解码</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BCH编码"><span class="nav-number"></span> <span class="nav-text">BCH编码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BCH错误检测"><span class="nav-number">1.</span> <span class="nav-text">BCH错误检测</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BCH纠错"><span class="nav-number">2.</span> <span class="nav-text">BCH纠错</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#无限域理论"><span class="nav-number"></span> <span class="nav-text">无限域理论</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数学域介绍"><span class="nav-number">1.</span> <span class="nav-text">数学域介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加减法"><span class="nav-number">2.</span> <span class="nav-text">加减法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#乘法"><span class="nav-number">3.</span> <span class="nav-text">乘法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于对数的乘法"><span class="nav-number">4.</span> <span class="nav-text">基于对数的乘法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#除法"><span class="nav-number">5.</span> <span class="nav-text">除法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#幂和倒数"><span class="nav-number">6.</span> <span class="nav-text">幂和倒数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多项式"><span class="nav-number">7.</span> <span class="nav-text">多项式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reed–Solomon编码"><span class="nav-number"></span> <span class="nav-text">Reed–Solomon编码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#编码理论透析"><span class="nav-number">1.</span> <span class="nav-text">编码理论透析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RS编码"><span class="nav-number">2.</span> <span class="nav-text">RS编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#编码概述"><span class="nav-number">2.1.</span> <span class="nav-text">编码概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异常管理"><span class="nav-number">2.2.</span> <span class="nav-text">异常管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RS构建者多项式"><span class="nav-number">2.3.</span> <span class="nav-text">RS构建者多项式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多项式除法"><span class="nav-number">2.4.</span> <span class="nav-text">多项式除法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Encoding-main-function"><span class="nav-number">2.5.</span> <span class="nav-text">Encoding main function</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lylex</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '8c7ab95bc5f3ca386164',
+          clientSecret: 'e6f62aad49d8965638cea5ebe3bb7763a337f960',
+          repo: 'lylex.github.io',
+          owner: 'lylex',
+          admin: ['lylex'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
