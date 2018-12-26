@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="lylex&#39;s humble Home">
 <meta property="og:description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-08-03T01:55:37.112Z">
+<meta property="og:updated_time" content="2018-12-26T10:27:41.442Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="C++原子操作">
 <meta name="twitter:description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
@@ -323,12 +323,24 @@
                 
               
 
-              <time title="Created: 2018-08-02 02:41:20 / Modified: 19:55:37" itemprop="dateCreated datePublished" datetime="2018-08-02T02:41:20-06:00">2018-08-02</time>
+              <time title="Created: 2018-08-02 02:41:20" itemprop="dateCreated datePublished" datetime="2018-08-02T02:41:20-06:00">2018-08-02</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-26 03:27:41" itemprop="dateModified" datetime="2018-12-26T03:27:41-07:00">2018-12-26</time>
               
             
           </span>
@@ -772,7 +784,7 @@
         var gitalk = new Gitalk({
           clientID: '8c7ab95bc5f3ca386164',
           clientSecret: 'e6f62aad49d8965638cea5ebe3bb7763a337f960',
-          repo: 'lylex.github.io',
+          repo: 'lylex',
           owner: 'lylex',
           admin: ['lylex'],
           id: location.pathname,
