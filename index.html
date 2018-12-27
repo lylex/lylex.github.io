@@ -347,7 +347,7 @@
                 
               
 
-              <time title="Created: 2018-12-26 09:01:17 / Modified: 20:05:19" itemprop="dateCreated datePublished" datetime="2018-12-26T09:01:17-07:00">2018-12-26</time>
+              <time title="Created: 2018-12-26 09:01:17 / Modified: 21:18:46" itemprop="dateCreated datePublished" datetime="2018-12-26T09:01:17-07:00">2018-12-26</time>
             
 
             
@@ -441,6 +441,8 @@
 <h2 id="运用迭代id"><a href="#运用迭代id" class="headerlink" title="运用迭代id"></a>运用迭代id</h2><p>事实上，go本身提供了一个很有用的东西，一直容易被我们给忽略掉，那就是<code>for _, b := range originBlobs {</code>中的那个下划线了，这本该属于迭代id的位置，表示某次迭代循环中取得的b在originBlobs中的index，不管怎么说，通过这个index就可以索引到originBlobs中当前的迭代值了，也就是之前复制出来的b。话不多说，上代码：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">blobs := <span class="built_in">make</span>([]*Blob, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">for</span> i, _ := <span class="keyword">range</span> originBlobs &#123;</span><br><span class="line">	blobs = <span class="built_in">append</span>(blobs, &amp;originBlobs[i])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这样能够得打正确的结果，也优雅多了。连复制b都省去了。</p>
+<p>最后，再作一个简化，for···range中连导出的占位符都可以省略：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">blobs := <span class="built_in">make</span>([]*Blob, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">for</span> i := <span class="keyword">range</span> originBlobs &#123;</span><br><span class="line">	blobs = <span class="built_in">append</span>(blobs, &amp;originBlobs[i])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>在go的range迭代中，不要使用迭代导出的变量的指针，因为这个指针是在所有的迭代中都恒定的。如果可以的话，尽量使用index，从而可以避免一次临时变量的复制。</p>
 
           
