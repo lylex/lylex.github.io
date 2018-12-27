@@ -108,25 +108,25 @@
 
 
 
-  <meta name="description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
-<meta name="keywords" content="C++">
+  <meta name="description" content="golang中关于range的坑今天发现之前写的drm中出了一个bug，打印数据库中取出的东西不一样的数据后居然显示的内容一样的，很久以前遇到过类似的错误，现今又重犯了，故而决定把它记下来，希望大家都能引以为戒。 先看一个简化的代码片段： 1234567891011121314151617181920212223242526type Blob struct &amp;#123;        ID str">
+<meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
-<meta property="og:title" content="C++原子操作">
-<meta property="og:url" content="http://yoursite.com/2018/08/02/cpp-atomic-functions/index.html">
+<meta property="og:title" content="golang中关于range的坑">
+<meta property="og:url" content="http://yoursite.com/2018/12/26/golang-trap-in-range/index.html">
 <meta property="og:site_name" content="lylex&#39;s humble Home">
-<meta property="og:description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
+<meta property="og:description" content="golang中关于range的坑今天发现之前写的drm中出了一个bug，打印数据库中取出的东西不一样的数据后居然显示的内容一样的，很久以前遇到过类似的错误，现今又重犯了，故而决定把它记下来，希望大家都能引以为戒。 先看一个简化的代码片段： 1234567891011121314151617181920212223242526type Blob struct &amp;#123;        ID str">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-12-26T15:21:37.671Z">
+<meta property="og:updated_time" content="2018-12-27T03:05:19.616Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="C++原子操作">
-<meta name="twitter:description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
+<meta name="twitter:title" content="golang中关于range的坑">
+<meta name="twitter:description" content="golang中关于range的坑今天发现之前写的drm中出了一个bug，打印数据库中取出的东西不一样的数据后居然显示的内容一样的，很久以前遇到过类似的错误，现今又重犯了，故而决定把它记下来，希望大家都能引以为戒。 先看一个简化的代码片段： 1234567891011121314151617181920212223242526type Blob struct &amp;#123;        ID str">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/08/02/cpp-atomic-functions/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/12/26/golang-trap-in-range/"/>
 
 
 
@@ -136,7 +136,7 @@
   };
 </script>
 
-  <title>C++原子操作 | lylex's humble Home</title>
+  <title>golang中关于range的坑 | lylex's humble Home</title>
   
 
 
@@ -305,7 +305,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/02/cpp-atomic-functions/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/26/golang-trap-in-range/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="lylex">
@@ -322,7 +322,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">C++原子操作
+          <h1 class="post-title" itemprop="name headline">golang中关于range的坑
               
             
           </h1>
@@ -347,24 +347,12 @@
                 
               
 
-              <time title="Created: 2018-08-02 02:41:20" itemprop="dateCreated datePublished" datetime="2018-08-02T02:41:20-06:00">2018-08-02</time>
+              <time title="Created: 2018-12-26 09:01:17 / Modified: 20:05:19" itemprop="dateCreated datePublished" datetime="2018-12-26T09:01:17-07:00">2018-12-26</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-12-26 08:21:37" itemprop="dateModified" datetime="2018-12-26T08:21:37-07:00">2018-12-26</time>
               
             
           </span>
@@ -381,7 +369,7 @@
                 <span class="post-meta-item-text">In</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a></span>
 
                 
                 
@@ -395,7 +383,7 @@
 
           
           
-             <span id="/2018/08/02/cpp-atomic-functions/" class="leancloud_visitors" data-flag-title="C++原子操作">
+             <span id="/2018/12/26/golang-trap-in-range/" class="leancloud_visitors" data-flag-title="golang中关于range的坑">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -426,23 +414,32 @@
       
 
       
-        <p>在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数<code>count++</code>这个简单的操作，你能保证它是原子的嘛？显然不能的。<br>或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。<br>好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看他们的定义和用法吧。</p>
-<h1 id="n-式"><a href="#n-式" class="headerlink" title="n++式"></a>n++式</h1><p>这类函数对传入指针指定的内存进行数值操作，操作完将数值填入指针指向内存，但返回指针指向的内存的原始值，就像我们经常遇到的<code>n++</code>一样，n加一了，最终返回加一前的n。具体函数列表如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type __sync_fetch_and_add (type *ptr, type value, ...)  <span class="comment">// +</span></span><br><span class="line">type __sync_fetch_and_sub (type *ptr, type value, ...)  <span class="comment">// -</span></span><br><span class="line">type __sync_fetch_and_or (type *ptr, type value, ...)   <span class="comment">// |</span></span><br><span class="line">type __sync_fetch_and_and (type *ptr, type value, ...)  <span class="comment">// &amp;</span></span><br><span class="line">type __sync_fetch_and_xor (type *ptr, type value, ...)  <span class="comment">// ^</span></span><br><span class="line">type __sync_fetch_and_nand (type *ptr, type value, ...) <span class="comment">// (~m)^n</span></span><br></pre></td></tr></table></figure>
-<p>就拿<code>__sync_fetch_and_add</code>举例吧，这个相当于如下代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tmp = *ptr;</span><br><span class="line">*ptr += value;</span><br><span class="line"><span class="keyword">return</span> tmp;</span><br></pre></td></tr></table></figure>
-<p>举个实际使用的例子吧，也拿<code>__sync_fetch_and_add</code>说事，其他也差不多了：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> n = <span class="number">6</span>;</span><br><span class="line">  <span class="keyword">auto</span> x = __sync_fetch_and_add(&amp;n, <span class="number">1</span>);</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; x &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// 输出 6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="n式"><a href="#n式" class="headerlink" title="++n式"></a>++n式</h1><p>同样的，这样的函数就对应<code>++n</code>这种形式，即每次操作完了，返回操作后的值。列表如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type __sync_add_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_sub_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_or_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_and_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_xor_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_nand_and_fetch (type *ptr, type value, ...)</span><br></pre></td></tr></table></figure>
-<p>同样拿最简单的<code>__sync_add_and_fetch</code>举例子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> n = <span class="number">6</span>;</span><br><span class="line">  <span class="keyword">auto</span> x = __sync_add_and_fetch(&amp;n, <span class="number">1</span>);</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; x &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// 输出 7</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="Compare-and-Swap"><a href="#Compare-and-Swap" class="headerlink" title="Compare-and-Swap"></a>Compare-and-Swap</h1><p>这个对应于一个需求，查看某个值有没有被改过，改过就算了，没有改过的话，就来修改下它吧。列表如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> __sync_bool_compare_and_swap (type *ptr, type oldval type newval, ...)</span><br><span class="line">type __sync_val_compare_and_swap (type *ptr, type oldval type newval, ...)</span><br></pre></td></tr></table></figure>
-<p>都是比较ptr对应的值是不是跟oldval相等，如果相等，那么就给<em>ptr写入newval，区别就是bool版本是newval成功写入了就返回true，而type版本返回</em>ptr操作前的值。</p>
-<h1 id="Memory-barrier"><a href="#Memory-barrier" class="headerlink" title="Memory barrier"></a>Memory barrier</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">__sync_synchronize (...) <span class="comment">// 获得一个full memory barrier.</span></span><br><span class="line"></span><br><span class="line">type __sync_lock_test_and_set (type *ptr, type value, ...) <span class="comment">// 将value写到*ptr，返回写之前的*ptr，获得一个acquire barrier</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> __sync_lock_release (type *ptr, ...) <span class="comment">// 用于释放__sync_lock_test_and_set加的锁，并将*ptr全部写0，获得一个release barrier</span></span><br></pre></td></tr></table></figure>
-<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>以上原子操作只能一次更新或读取一个内存单元，如果涉及多个内存单元一起修改的时候，就只能加锁了，这些原子操作爱莫能助了。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>  <a href="http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html" target="_blank" rel="noopener">http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html</a></p>
+        <h2 id="golang中关于range的坑"><a href="#golang中关于range的坑" class="headerlink" title="golang中关于range的坑"></a>golang中关于range的坑</h2><p>今天发现之前写的<a href="https://github.com/lylex/drm" target="_blank" rel="noopener">drm</a>中出了一个<a href="https://github.com/lylex/drm/issues/9" target="_blank" rel="noopener">bug</a>，打印数据库中取出的东西不一样的数据后居然显示的内容一样的，很久以前遇到过类似的错误，现今又重犯了，故而决定把它记下来，希望大家都能引以为戒。</p>
+<p>先看一个简化的代码片段：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Blob <span class="keyword">struct</span> &#123;</span><br><span class="line">        ID <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">        originBlobs := []Blob&#123;</span><br><span class="line">                Blob&#123;</span><br><span class="line">                        ID: <span class="string">"1"</span>,</span><br><span class="line">                &#125;,</span><br><span class="line">                Blob&#123;</span><br><span class="line">                        ID: <span class="string">"2"</span>,</span><br><span class="line">                &#125;,</span><br><span class="line">                Blob&#123;</span><br><span class="line">                        ID: <span class="string">"3"</span>,</span><br><span class="line">                &#125;,</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        blobs := <span class="built_in">make</span>([]*Blob, <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">for</span> _, b := <span class="keyword">range</span> originBlobs &#123;     <span class="comment">// 1</span></span><br><span class="line">                blobs = <span class="built_in">append</span>(blobs, &amp;b)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> _, x := <span class="keyword">range</span> blobs &#123;</span><br><span class="line">                fmt.Println(*x)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>想想结果是什么呢？<code>blobs</code>是一个指针的切片，<code>originBlobs</code>的所有值都取地址赋值给它了，应该1、2、3都输出来吧。你一定非常肯定是这样的结果。而且，你说不定还会为这里使用了一个指针的切片，而非Blob类型的切片而沾沾自喜，因为这样避免了复制，提高了效率。</p>
+<p>好吧，我来公布答案了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br></pre></td></tr></table></figure>
+<p>是不是有点懵了，居然是一样的，都是3。那1和2是没有插入进去吗？让我们来看看append那里有没有拿到1和2，在上面代码<code>1</code>处下面加一行代码，改成如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _, b := <span class="keyword">range</span> originBlobs &#123;</span><br><span class="line">        fmt.Println(b)</span><br><span class="line">        blobs = <span class="built_in">append</span>(blobs, &amp;b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打印出来的结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;1&#125;</span><br><span class="line">&#123;2&#125;</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br></pre></td></tr></table></figure>
+<p>这证明123都曾经append进去过了，可是后来为什么都变成3了呢？既然都是3，那么我们先看看是不是同一个对象吧。那我们来打印下append进去的b的地址吧：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _, b := <span class="keyword">range</span> originBlobs &#123;</span><br><span class="line">        fmt.Println(b)</span><br><span class="line">        fmt.Printf(<span class="string">"%p\n"</span>, &amp;b)</span><br><span class="line">        blobs = <span class="built_in">append</span>(blobs, &amp;b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出的结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;1&#125;</span><br><span class="line">0xc000092030</span><br><span class="line">&#123;2&#125;</span><br><span class="line">0xc000092030</span><br><span class="line">&#123;3&#125;</span><br><span class="line">0xc000092030</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br></pre></td></tr></table></figure>
+<p>果然地址都是<code>0xc000092030</code>，这证明了<strong>append进去的<code>b</code>是同一个object</strong>！！！</p>
+<p>这里的<code>_, b := range originBlobs</code>中使用的是<code>:=</code>，什么意思，就是申明并赋值啊，理论上应该每次都应该重新<code>new</code>出一个新的对象b啊，可是这明摆着没有嘛。</p>
+<p>震惊归震惊，气愤归气愤，可是仔细一想也是合理的。go一定是做了某种优化，首先b是这个循环中的局部变量，甚至是临时变量，大部分情况生命周期也就仅限于这个block了，其次既然b是originBlobs中迭代出来的，那么必然是同类型的，既然是同类型的，那么类似与<code>memcpy</code>的操作是更加高效的，就没有必要重新分配地址然后再销毁之前的了。</p>
+<p>道理大抵如此，接下来就是怎么解决了。</p>
+<h1 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h1><p>问题很明了了，就是在range中使用了迭代变量（上述代码中的b）的指针，那解决方法也很清楚了，那就是<strong>不要在range块中使用迭代变量的指针</strong>。</p>
+<h2 id="临时变量"><a href="#临时变量" class="headerlink" title="临时变量"></a>临时变量</h2><p>既然说不用迭代变量指针，还要用指针的话，那显而易见，就是用临时变量来替代呗，于是乎，上面代码<code>1</code>处就可以改成：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">blobs := <span class="built_in">make</span>([]*Blob, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">for</span> _, b := <span class="keyword">range</span> originBlobs &#123;</span><br><span class="line">	temp := b</span><br><span class="line">	blobs = <span class="built_in">append</span>(blobs, &amp;temp)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>虽说不雅，但是能工作。我们先说为啥能工作吧，因为这里每一次迭代循环中，都新建了一个temp变量，然后将b复制给了temp，temp的地址append进blobs，如此一来，这个temp被引用了，那它不会被销毁，等下一次迭代循环的时候，又会重新构造一个temp了。再说为啥不雅吧，这里每次迭代循环都要构造对象和复制对象，还有比这更丑的代码吗？</p>
+<h2 id="运用迭代id"><a href="#运用迭代id" class="headerlink" title="运用迭代id"></a>运用迭代id</h2><p>事实上，go本身提供了一个很有用的东西，一直容易被我们给忽略掉，那就是<code>for _, b := range originBlobs {</code>中的那个下划线了，这本该属于迭代id的位置，表示某次迭代循环中取得的b在originBlobs中的index，不管怎么说，通过这个index就可以索引到originBlobs中当前的迭代值了，也就是之前复制出来的b。话不多说，上代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">blobs := <span class="built_in">make</span>([]*Blob, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">for</span> i, _ := <span class="keyword">range</span> originBlobs &#123;</span><br><span class="line">	blobs = <span class="built_in">append</span>(blobs, &amp;originBlobs[i])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样能够得打正确的结果，也优雅多了。连复制b都省去了。</p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>在go的range迭代中，不要使用迭代导出的变量的指针，因为这个指针是在所有的迭代中都恒定的。如果可以的话，尽量使用index，从而可以避免一次临时变量的复制。</p>
 
       
     </div>
@@ -474,7 +471,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/C/" rel="tag"># C++</a>
+            <a href="/tags/Golang/" rel="tag"># Golang</a>
           
         </div>
       
@@ -487,8 +484,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/26/google-cpp-style/" rel="next" title="《Google C++风格指南》读书笔记">
-                <i class="fa fa-chevron-left"></i> 《Google C++风格指南》读书笔记
+              <a href="/2018/08/15/singleton-thread-safe/" rel="next" title="一个线程安全的Singleton">
+                <i class="fa fa-chevron-left"></i> 一个线程安全的Singleton
               </a>
             
           </div>
@@ -496,10 +493,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/08/09/cpp-template/" rel="prev" title="从一段代码来看C++模板">
-                从一段代码来看C++模板 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -690,7 +683,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#n-式"><span class="nav-number">1.</span> <span class="nav-text">n++式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#n式"><span class="nav-number">2.</span> <span class="nav-text">++n式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Compare-and-Swap"><span class="nav-number">3.</span> <span class="nav-text">Compare-and-Swap</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Memory-barrier"><span class="nav-number">4.</span> <span class="nav-text">Memory barrier</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#golang中关于range的坑"><span class="nav-number">1.</span> <span class="nav-text">golang中关于range的坑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Solution"><span class="nav-number"></span> <span class="nav-text">Solution</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#临时变量"><span class="nav-number">1.</span> <span class="nav-text">临时变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运用迭代id"><span class="nav-number">2.</span> <span class="nav-text">运用迭代id</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number"></span> <span class="nav-text">Conclusion</span></a></div>
             
 
           </div>

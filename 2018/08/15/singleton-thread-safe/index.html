@@ -109,14 +109,14 @@
 
 
   <meta name="description" content="一个线程安全的Singleton看到一段Singleton的代码，比较与众不同，问题来了，这究竟是不是线程安全的呢？先看代码吧(原来代码是模板的，为了简单起见，做了一个阉割，用int来代替了)： 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555">
-<meta name="keywords" content="c++">
+<meta name="keywords" content="C++">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一个线程安全的Singleton">
 <meta property="og:url" content="http://yoursite.com/2018/08/15/singleton-thread-safe/index.html">
 <meta property="og:site_name" content="lylex&#39;s humble Home">
 <meta property="og:description" content="一个线程安全的Singleton看到一段Singleton的代码，比较与众不同，问题来了，这究竟是不是线程安全的呢？先看代码吧(原来代码是模板的，为了简单起见，做了一个阉割，用int来代替了)： 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-12-26T10:27:41.442Z">
+<meta property="og:updated_time" content="2018-12-26T15:24:59.451Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一个线程安全的Singleton">
 <meta name="twitter:description" content="一个线程安全的Singleton看到一段Singleton的代码，比较与众不同，问题来了，这究竟是不是线程安全的呢？先看代码吧(原来代码是模板的，为了简单起见，做了一个阉割，用int来代替了)： 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555">
@@ -223,6 +223,30 @@
           <li class="menu-item menu-item-home">
     <a href="/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />About</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Categories</a>
   </li>
         
         
@@ -340,11 +364,29 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-12-26 03:27:41" itemprop="dateModified" datetime="2018-12-26T03:27:41-07:00">2018-12-26</time>
+                <time title="Modified: 2018-12-26 08:24:59" itemprop="dateModified" datetime="2018-12-26T08:24:59-07:00">2018-12-26</time>
               
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -433,7 +475,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/c/" rel="tag"># c++</a>
+            <a href="/tags/C/" rel="tag"># C++</a>
           
         </div>
       
@@ -455,6 +497,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/26/golang-trap-in-range/" rel="prev" title="golang中关于range的坑">
+                golang中关于range的坑 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -533,12 +579,31 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
               
 
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
               
 
               
@@ -554,7 +619,15 @@
                     
                       
                     
-                    <span class="site-state-item-count">3</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>

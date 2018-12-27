@@ -224,6 +224,30 @@
         
         
           
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />About</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Categories</a>
+  </li>
+        
+        
+        
+          
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
@@ -261,6 +285,204 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/26/golang-trap-in-range/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="lylex">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lylex's humble Home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/12/26/golang-trap-in-range/" itemprop="url">
+                  golang中关于range的坑
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-12-26 09:01:17 / Modified: 20:05:19" itemprop="dateCreated datePublished" datetime="2018-12-26T09:01:17-07:00">2018-12-26</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/12/26/golang-trap-in-range/" class="leancloud_visitors" data-flag-title="golang中关于range的坑">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="golang中关于range的坑"><a href="#golang中关于range的坑" class="headerlink" title="golang中关于range的坑"></a>golang中关于range的坑</h2><p>今天发现之前写的<a href="https://github.com/lylex/drm" target="_blank" rel="noopener">drm</a>中出了一个<a href="https://github.com/lylex/drm/issues/9" target="_blank" rel="noopener">bug</a>，打印数据库中取出的东西不一样的数据后居然显示的内容一样的，很久以前遇到过类似的错误，现今又重犯了，故而决定把它记下来，希望大家都能引以为戒。</p>
+<p>先看一个简化的代码片段：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Blob <span class="keyword">struct</span> &#123;</span><br><span class="line">        ID <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">        originBlobs := []Blob&#123;</span><br><span class="line">                Blob&#123;</span><br><span class="line">                        ID: <span class="string">"1"</span>,</span><br><span class="line">                &#125;,</span><br><span class="line">                Blob&#123;</span><br><span class="line">                        ID: <span class="string">"2"</span>,</span><br><span class="line">                &#125;,</span><br><span class="line">                Blob&#123;</span><br><span class="line">                        ID: <span class="string">"3"</span>,</span><br><span class="line">                &#125;,</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        blobs := <span class="built_in">make</span>([]*Blob, <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">for</span> _, b := <span class="keyword">range</span> originBlobs &#123;     <span class="comment">// 1</span></span><br><span class="line">                blobs = <span class="built_in">append</span>(blobs, &amp;b)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> _, x := <span class="keyword">range</span> blobs &#123;</span><br><span class="line">                fmt.Println(*x)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>想想结果是什么呢？<code>blobs</code>是一个指针的切片，<code>originBlobs</code>的所有值都取地址赋值给它了，应该1、2、3都输出来吧。你一定非常肯定是这样的结果。而且，你说不定还会为这里使用了一个指针的切片，而非Blob类型的切片而沾沾自喜，因为这样避免了复制，提高了效率。</p>
+<p>好吧，我来公布答案了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br></pre></td></tr></table></figure>
+<p>是不是有点懵了，居然是一样的，都是3。那1和2是没有插入进去吗？让我们来看看append那里有没有拿到1和2，在上面代码<code>1</code>处下面加一行代码，改成如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _, b := <span class="keyword">range</span> originBlobs &#123;</span><br><span class="line">        fmt.Println(b)</span><br><span class="line">        blobs = <span class="built_in">append</span>(blobs, &amp;b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打印出来的结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;1&#125;</span><br><span class="line">&#123;2&#125;</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br></pre></td></tr></table></figure>
+<p>这证明123都曾经append进去过了，可是后来为什么都变成3了呢？既然都是3，那么我们先看看是不是同一个对象吧。那我们来打印下append进去的b的地址吧：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _, b := <span class="keyword">range</span> originBlobs &#123;</span><br><span class="line">        fmt.Println(b)</span><br><span class="line">        fmt.Printf(<span class="string">"%p\n"</span>, &amp;b)</span><br><span class="line">        blobs = <span class="built_in">append</span>(blobs, &amp;b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出的结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;1&#125;</span><br><span class="line">0xc000092030</span><br><span class="line">&#123;2&#125;</span><br><span class="line">0xc000092030</span><br><span class="line">&#123;3&#125;</span><br><span class="line">0xc000092030</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br><span class="line">&#123;3&#125;</span><br></pre></td></tr></table></figure>
+<p>果然地址都是<code>0xc000092030</code>，这证明了<strong>append进去的<code>b</code>是同一个object</strong>！！！</p>
+<p>这里的<code>_, b := range originBlobs</code>中使用的是<code>:=</code>，什么意思，就是申明并赋值啊，理论上应该每次都应该重新<code>new</code>出一个新的对象b啊，可是这明摆着没有嘛。</p>
+<p>震惊归震惊，气愤归气愤，可是仔细一想也是合理的。go一定是做了某种优化，首先b是这个循环中的局部变量，甚至是临时变量，大部分情况生命周期也就仅限于这个block了，其次既然b是originBlobs中迭代出来的，那么必然是同类型的，既然是同类型的，那么类似与<code>memcpy</code>的操作是更加高效的，就没有必要重新分配地址然后再销毁之前的了。</p>
+<p>道理大抵如此，接下来就是怎么解决了。</p>
+<h1 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h1><p>问题很明了了，就是在range中使用了迭代变量（上述代码中的b）的指针，那解决方法也很清楚了，那就是<strong>不要在range块中使用迭代变量的指针</strong>。</p>
+<h2 id="临时变量"><a href="#临时变量" class="headerlink" title="临时变量"></a>临时变量</h2><p>既然说不用迭代变量指针，还要用指针的话，那显而易见，就是用临时变量来替代呗，于是乎，上面代码<code>1</code>处就可以改成：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">blobs := <span class="built_in">make</span>([]*Blob, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">for</span> _, b := <span class="keyword">range</span> originBlobs &#123;</span><br><span class="line">	temp := b</span><br><span class="line">	blobs = <span class="built_in">append</span>(blobs, &amp;temp)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>虽说不雅，但是能工作。我们先说为啥能工作吧，因为这里每一次迭代循环中，都新建了一个temp变量，然后将b复制给了temp，temp的地址append进blobs，如此一来，这个temp被引用了，那它不会被销毁，等下一次迭代循环的时候，又会重新构造一个temp了。再说为啥不雅吧，这里每次迭代循环都要构造对象和复制对象，还有比这更丑的代码吗？</p>
+<h2 id="运用迭代id"><a href="#运用迭代id" class="headerlink" title="运用迭代id"></a>运用迭代id</h2><p>事实上，go本身提供了一个很有用的东西，一直容易被我们给忽略掉，那就是<code>for _, b := range originBlobs {</code>中的那个下划线了，这本该属于迭代id的位置，表示某次迭代循环中取得的b在originBlobs中的index，不管怎么说，通过这个index就可以索引到originBlobs中当前的迭代值了，也就是之前复制出来的b。话不多说，上代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">blobs := <span class="built_in">make</span>([]*Blob, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">for</span> i, _ := <span class="keyword">range</span> originBlobs &#123;</span><br><span class="line">	blobs = <span class="built_in">append</span>(blobs, &amp;originBlobs[i])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样能够得打正确的结果，也优雅多了。连复制b都省去了。</p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>在go的range迭代中，不要使用迭代导出的变量的指针，因为这个指针是在所有的迭代中都恒定的。如果可以的话，尽量使用index，从而可以避免一次临时变量的复制。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -340,11 +562,29 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-12-26 03:27:41" itemprop="dateModified" datetime="2018-12-26T03:27:41-07:00">2018-12-26</time>
+                <time title="Modified: 2018-12-26 08:24:59" itemprop="dateModified" datetime="2018-12-26T08:24:59-07:00">2018-12-26</time>
               
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -524,11 +764,29 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-12-26 03:27:41" itemprop="dateModified" datetime="2018-12-26T03:27:41-07:00">2018-12-26</time>
+                <time title="Modified: 2018-12-26 08:21:21" itemprop="dateModified" datetime="2018-12-26T08:21:21-07:00">2018-12-26</time>
               
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -733,11 +991,29 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-12-26 03:27:41" itemprop="dateModified" datetime="2018-12-26T03:27:41-07:00">2018-12-26</time>
+                <time title="Modified: 2018-12-26 08:21:37" itemprop="dateModified" datetime="2018-12-26T08:21:37-07:00">2018-12-26</time>
               
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -916,11 +1192,36 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-12-26 03:27:41" itemprop="dateModified" datetime="2018-12-26T03:27:41-07:00">2018-12-26</time>
+                <time title="Modified: 2018-12-26 08:21:58" itemprop="dateModified" datetime="2018-12-26T08:21:58-07:00">2018-12-26</time>
               
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/C/Notes/" itemprop="url" rel="index"><span itemprop="name">Notes</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -1556,11 +1857,29 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-12-26 03:27:41" itemprop="dateModified" datetime="2018-12-26T03:27:41-07:00">2018-12-26</time>
+                <time title="Modified: 2018-12-26 08:24:25" itemprop="dateModified" datetime="2018-12-26T08:24:25-07:00">2018-12-26</time>
               
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Algorithm/" itemprop="url" rel="index"><span itemprop="name">Algorithm</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -1934,12 +2253,31 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
               
 
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
               
 
               
@@ -1955,7 +2293,15 @@
                     
                       
                     
-                    <span class="site-state-item-count">3</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
