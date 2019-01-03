@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="go杂谈–array和sliceArray是几乎所有我们见到的编程语言中都有的这么一个东西，而slice似乎是go特有的。这里我们就稍微花点时间，来杂谈漫谈一下这两个东西，以期避其坑，用其长。 关于Array和其他语言中的数组一样，go语言中的数组是同一种类型的集合，并且它是定长度的。它是一种组合类型，传入时候，是值传递的，不像C++中还有所谓的地址属性。概念上，它更像一个结构体对象。如果有什么需">
+<meta name="keywords" content="Golang">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go杂谈--array和slice">
+<meta property="og:url" content="http://yoursite.com/2019/01/03/go-array-and-slice/index.html">
+<meta property="og:site_name" content="lylex&#39;s humble Home">
+<meta property="og:description" content="go杂谈–array和sliceArray是几乎所有我们见到的编程语言中都有的这么一个东西，而slice似乎是go特有的。这里我们就稍微花点时间，来杂谈漫谈一下这两个东西，以期避其坑，用其长。 关于Array和其他语言中的数组一样，go语言中的数组是同一种类型的集合，并且它是定长度的。它是一种组合类型，传入时候，是值传递的，不像C++中还有所谓的地址属性。概念上，它更像一个结构体对象。如果有什么需">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-01-03T15:18:03.460Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="go杂谈--array和slice">
+<meta name="twitter:description" content="go杂谈–array和sliceArray是几乎所有我们见到的编程语言中都有的这么一个东西，而slice似乎是go特有的。这里我们就稍微花点时间，来杂谈漫谈一下这两个东西，以期避其坑，用其长。 关于Array和其他语言中的数组一样，go语言中的数组是同一种类型的集合，并且它是定长度的。它是一种组合类型，传入时候，是值传递的，不像C++中还有所谓的地址属性。概念上，它更像一个结构体对象。如果有什么需">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/01/03/go-array-and-slice/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>go杂谈--array和slice | lylex's humble Home</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lylex's humble Home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />About</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Categories</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/03/go-array-and-slice/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="lylex">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lylex's humble Home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">go杂谈--array和slice
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-01-03 01:34:23 / Modified: 08:18:03" itemprop="dateCreated datePublished" datetime="2019-01-03T01:34:23-07:00">2019-01-03</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/01/03/go-array-and-slice/" class="leancloud_visitors" data-flag-title="go杂谈--array和slice">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="go杂谈–array和slice"><a href="#go杂谈–array和slice" class="headerlink" title="go杂谈–array和slice"></a>go杂谈–array和slice</h2><p>Array是几乎所有我们见到的编程语言中都有的这么一个东西，而slice似乎是go特有的。这里我们就稍微花点时间，来杂谈漫谈一下这两个东西，以期避其坑，用其长。</p>
+<h1 id="关于Array"><a href="#关于Array" class="headerlink" title="关于Array"></a>关于Array</h1><p>和其他语言中的数组一样，go语言中的数组是同一种类型的集合，并且它是定长度的。它是一种组合类型，传入时候，是值传递的，不像C++中还有所谓的地址属性。概念上，它更像一个结构体对象。<br>如果有什么需要叮嘱的，那就是它各式各样的申明以及初始化方法了吧。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a [<span class="number">3</span>]<span class="keyword">int</span> <span class="comment">// &#123;0, 0, 0&#125;</span></span><br><span class="line"><span class="keyword">var</span> b [<span class="number">3</span>]<span class="keyword">int</span> = [<span class="number">3</span>]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125; <span class="comment">// &#123;1, 2, 3&#125;</span></span><br><span class="line">c := [<span class="number">3</span>]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125; <span class="comment">// &#123;1, 2, 3&#125;</span></span><br><span class="line">d := [<span class="number">3</span>]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>&#125; <span class="comment">// &#123;1, 2, 0&#125;</span></span><br><span class="line">e := [...]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125; <span class="comment">// &#123;1, 2, 3&#125;</span></span><br></pre></td></tr></table></figure>
+<p>此外，go中的数组是可以实现比较的，例如上面例子中，<code>c == e</code>是返回true的，这里注意了，需要满足以下两个条件才是true：</p>
+<ol>
+<li>两边是同类型的才有资格比较，比如，[3]int和[4]int</li>
+<li>对应位置的元素是相等的</li>
+</ol>
+<h1 id="关于Slice"><a href="#关于Slice" class="headerlink" title="关于Slice"></a>关于Slice</h1><p>Slice，一般称作切片，基本像是go特有的，还是有不少可以说道的。切片跟数组非常相似，都是某种类型的集合，只是没有固定长度。它的实现的结构大致如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> slice <span class="keyword">struct</span> &#123;</span><br><span class="line">    firstElement *someType</span><br><span class="line">    <span class="built_in">len</span> <span class="keyword">int</span></span><br><span class="line">    <span class="built_in">cap</span> <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，len指的是它当前的元素个数，cap指的是它的容量，而firstElement指的是第一个元素的地址。<br>围绕这个数据结构，它衍生出了如下特性：</p>
+<h2 id="切片是数组的引用"><a href="#切片是数组的引用" class="headerlink" title="切片是数组的引用"></a>切片是数组的引用</h2><p>这个可以认为是切片的精髓了！<br>从上面的示意结构体也可以看出，这里与数据相关的只有firstElement，而且它仅仅是一个指针。由此可见，切片本身并不保有数据，它指向一个一个具体的数组，也就是说，<strong>它是某个数组的引用</strong>。</p>
+<p>那改变切片的内容是不是真的印象它所指向的数组呢，我们来看看如下实验：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">array := [<span class="number">4</span>]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line"><span class="keyword">var</span> s []<span class="keyword">int</span> = array[<span class="number">1</span>:]</span><br><span class="line">s[<span class="number">0</span>] = <span class="number">99</span></span><br><span class="line">fmt.Println(array) <span class="comment">// [1 99 3 4]</span></span><br></pre></td></tr></table></figure>
+<p>上面的实验中，s是一个选取array的第一个元素为起始地址的切片，也就是上面的firstElement指向了array[1]的地址，然后修改了s的第0个元素，结果发现array[1]给变化了。</p>
+<p>初始化一个切片，不一定要用上面的方法来初始化，我们也可以用一个匿名数组来初始化，就像下面的代码一样：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>这里跳过了显式定义数组的过程，可以看做是骨子里偷偷地指向了一个匿名的数组。</p>
+<p>根据数据初始化好理解了，那问题来了，如果申明一个切片的话，没有显示初始化，那它还会指向一个数组吗？结论是，指向nil。不信的话，请看下面的实验：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> ss []<span class="keyword">int</span></span><br><span class="line">fmt.Println(ss == <span class="literal">nil</span>) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>上面可以看出，一个未经初始化的切片ss，是可以和nil比较，而且它等于nil，原因就是firstElement指向一个空指针。</p>
+<h2 id="切片是变长的"><a href="#切片是变长的" class="headerlink" title="切片是变长的"></a>切片是变长的</h2><p>怎么理解变长呢，这里变长变的既可以是长度，也可以是容量，或许你还记得C++ STL中的vector，内部实现有个堆内存，如果占用达到了capacity极限，会自动为其倍增capacity。其实slice也是有类似的机制的，请看下面的例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> s []<span class="keyword">int</span> = []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">fmt.Println(<span class="built_in">len</span>(s), <span class="built_in">cap</span>(s)) <span class="comment">// 4 4</span></span><br><span class="line">s = <span class="built_in">append</span>(s, <span class="number">5</span>)</span><br><span class="line">fmt.Println(<span class="built_in">len</span>(s), <span class="built_in">cap</span>(s)) <span class="comment">// 5 8</span></span><br></pre></td></tr></table></figure>
+<p>一开始初始化后，长度和容量都是4，然后增加一个元素后，突破容量极限了，那么容量就会变成原来的2倍，长度增加1.</p>
+<p>这里指向的匿名数组很容易理解，大不了换一个匿名数组而已，可是如果是上面的那种具名数据呢，长度已经固定了，似乎无法再扩容了啊。我们来看例子先：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">array := [<span class="number">4</span>]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line"><span class="keyword">var</span> s []<span class="keyword">int</span> = array[<span class="number">0</span>:]</span><br><span class="line">fmt.Println(<span class="built_in">len</span>(s), <span class="built_in">cap</span>(s))	<span class="comment">// 4 4</span></span><br><span class="line">fmt.Printf(<span class="string">"%p\n"</span>, &amp;s[<span class="number">0</span>])	<span class="comment">// 0x416020</span></span><br><span class="line">fmt.Printf(<span class="string">"%p\n"</span>, &amp;array[<span class="number">0</span>])	<span class="comment">// 0x416020</span></span><br><span class="line"></span><br><span class="line">s = <span class="built_in">append</span>(s, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">fmt.Println(<span class="built_in">len</span>(s), <span class="built_in">cap</span>(s))	<span class="comment">// 5 8</span></span><br><span class="line">fmt.Printf(<span class="string">"%p\n"</span>, &amp;s[<span class="number">0</span>])	<span class="comment">// 0x452000</span></span><br><span class="line">fmt.Printf(<span class="string">"%p\n"</span>, &amp;array[<span class="number">0</span>])	<span class="comment">// 0x416020</span></span><br><span class="line"></span><br><span class="line">s[<span class="number">0</span>] = <span class="number">100</span></span><br><span class="line">fmt.Println(array)	<span class="comment">// [1 2 3 4]</span></span><br></pre></td></tr></table></figure>
+<p>在append之前，s[0]的地址和array[0]是一样的，再次证明了上面说的引用关系，append之后，由于capacity突破极限了，s[0]的地址和array[0]的已经不一样了，证明s背后的数组已经被重新换过了，最后验证一下，修改了s[0]，array也没有变化。</p>
+<p>这证明了<strong>切片在变容量时候，可能会指向不同的数组</strong>，也侧面说明了，<strong>通过切片来改变数组内容的做法是不可靠的</strong>。</p>
+<h2 id="切片本身是一个值传递的对象"><a href="#切片本身是一个值传递的对象" class="headerlink" title="切片本身是一个值传递的对象"></a>切片本身是一个值传递的对象</h2><p>上面也说了切片是一个对象，如果像下面这样，将切片带入函数那会怎么样呢？</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">playSlice</span><span class="params">(s []<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在不变容量的情况下，改变s指向的数组的内容无疑是可以办到的，可是如果通过这个来改变长度或者容量呢，能不能办到呢？还是来看一下实验再做定论：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">playSlice</span><span class="params">(s []<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	s[<span class="number">0</span>] = <span class="number">99</span></span><br><span class="line">	s = <span class="built_in">append</span>(s, <span class="number">5</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	array := [<span class="number">4</span>]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> s []<span class="keyword">int</span> = array[<span class="number">0</span>:]</span><br><span class="line">	playSlice(s)</span><br><span class="line">	fmt.Println(s) <span class="comment">// [99 2 3 4]</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到在函数中修改值是办到了，可是扩容却失败了。这是为什么呢？因为我们之前看到了，函数参数传递时候，s是作为对象传递的，它是一个副本，这个副本中把firstElement的地址，len和cap给传递进去了，不同的firstElement不管是本体还是副本，存的地址确实一样的，通过这个地址来修改firstElement的内容是可以的，可是到了<code>s = append(s, 5)</code>时候，扩容了，就重新分配了一个数组，把这个数组的地址赋值给了firstElement，变化的firstElement只是一个副本，对本体是没有任何影响的。因此，变长失败了。</p>
+<h2 id="切片操作的函数"><a href="#切片操作的函数" class="headerlink" title="切片操作的函数"></a>切片操作的函数</h2><h3 id="make"><a href="#make" class="headerlink" title="make"></a>make</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s := <span class="built_in">make</span>([]<span class="keyword">type</span>, <span class="built_in">len</span>)</span><br><span class="line">s := <span class="built_in">make</span>([]<span class="keyword">type</span>, <span class="built_in">len</span>, <span class="built_in">cap</span>)</span><br></pre></td></tr></table></figure>
+<p>上面两种都是可以的，可以生成一个指向匿名数组的切片，每个元素的值按照type的默认初始化来初始化。</p>
+<h3 id="append"><a href="#append" class="headerlink" title="append"></a>append</h3><p>增加元素，可以变长，可以这么用：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="built_in">append</span>(slice []Type, elems ...Type)</span><br></pre></td></tr></table></figure>
+<p>这里需要强调的是，<strong>在不需要扩容的情况下，append其实是增加到了原来的数据之后的</strong>，看例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">array := [<span class="number">4</span>]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line"><span class="keyword">var</span> s []<span class="keyword">int</span> = array[<span class="number">0</span>:<span class="number">2</span>]</span><br><span class="line">s = <span class="built_in">append</span>(s, <span class="number">5</span>)</span><br><span class="line">fmt.Println(array) <span class="comment">// [1 2 5 4]</span></span><br></pre></td></tr></table></figure>
+<p>还有，就是可以在空的切片后append。</p>
+<h3 id="copy"><a href="#copy" class="headerlink" title="copy"></a>copy</h3><p>也是go自带的操作切片的函数，用法如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">copy</span><span class="params">(dst, src []Type)</span> <span class="title">int</span></span></span><br></pre></td></tr></table></figure>
+<p>需要注意的是，copy会把src中的值以此填到dst中，填满为止，填不满拉倒，不会扩容。由此可知，<strong>dst如果是nil，那dst在copy后还是nil</strong></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:13px;">-------------END 欢迎评论 一起交流学习-------------</div>
+    
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Golang/" rel="tag"># Golang</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/26/golang-trap-in-range/" rel="next" title="golang中关于range的坑">
+                <i class="fa fa-chevron-left"></i> golang中关于range的坑
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div id="gitalk-container">
+    </div>
+
+  
+
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">lylex</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/your-user-name" target="_blank" title="GitHub"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://twitter.com/your-user-name" target="_blank" title="Twitter"><i class="fa fa-fw fa-globe"></i>Twitter</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://qianzhou.tech/" title="Home" target="_blank">Home</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#go杂谈–array和slice"><span class="nav-number">1.</span> <span class="nav-text">go杂谈–array和slice</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于Array"><span class="nav-number"></span> <span class="nav-text">关于Array</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于Slice"><span class="nav-number"></span> <span class="nav-text">关于Slice</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#切片是数组的引用"><span class="nav-number">1.</span> <span class="nav-text">切片是数组的引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片是变长的"><span class="nav-number">2.</span> <span class="nav-text">切片是变长的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片本身是一个值传递的对象"><span class="nav-number">3.</span> <span class="nav-text">切片本身是一个值传递的对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片操作的函数"><span class="nav-number">4.</span> <span class="nav-text">切片操作的函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#make"><span class="nav-number">4.1.</span> <span class="nav-text">make</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#append"><span class="nav-number">4.2.</span> <span class="nav-text">append</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#copy"><span class="nav-number">4.3.</span> <span class="nav-text">copy</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lylex</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '8c7ab95bc5f3ca386164',
+          clientSecret: 'e6f62aad49d8965638cea5ebe3bb7763a337f960',
+          repo: 'lylex.github.io',
+          owner: 'lylex',
+          admin: ['lylex'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("uO62rAuhHbIj6bMdPysNFY3C-gzGzoHsz", "879DXIiyM1biNVkMsefQrI0r");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            
+            counter.save(null, {
+              success: function(counter) {
+                
+                  var $element = $(document.getElementById(url));
+                  $element.find('.leancloud-visitors-count').text(counter.get('time'));
+                
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text('Counter not initialized! See more at console err msg.');
+              console.error('ATTENTION! LeanCloud counter has security bug, see here how to solve it: https://github.com/theme-next/hexo-leancloud-counter-security. \n But you also can use LeanCloud without security, by set \'security\' option to \'false\'.');
+            
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
