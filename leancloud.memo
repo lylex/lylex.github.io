@@ -5,4 +5,5 @@
 {"title":"从一段代码来看C++模板","url":"/2018/08/09/cpp-template/"},
 {"title":"一个线程安全的Singleton","url":"/2018/08/15/singleton-thread-safe/"},
 {"title":"golang中关于range的坑","url":"/2018/12/26/golang-trap-in-range/"},
+{"title":"go杂谈--array和slice","url":"/2019/01/03/go-array-and-slice/"},
 ]

@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="lylex&#39;s humble Home">
 <meta property="og:description" content="go杂谈–array和sliceArray是几乎所有我们见到的编程语言中都有的这么一个东西，而slice似乎是go特有的。这里我们就稍微花点时间，来杂谈漫谈一下这两个东西，以期避其坑，用其长。 关于Array和其他语言中的数组一样，go语言中的数组是同一种类型的集合，并且它是定长度的。它是一种组合类型，传入时候，是值传递的，不像C++中还有所谓的地址属性。概念上，它更像一个结构体对象。如果有什么需">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-03T15:18:03.460Z">
+<meta property="og:updated_time" content="2019-01-11T02:30:43.519Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="go杂谈--array和slice">
 <meta name="twitter:description" content="go杂谈–array和sliceArray是几乎所有我们见到的编程语言中都有的这么一个东西，而slice似乎是go特有的。这里我们就稍微花点时间，来杂谈漫谈一下这两个东西，以期避其坑，用其长。 关于Array和其他语言中的数组一样，go语言中的数组是同一种类型的集合，并且它是定长度的。它是一种组合类型，传入时候，是值传递的，不像C++中还有所谓的地址属性。概念上，它更像一个结构体对象。如果有什么需">
@@ -347,12 +347,24 @@
                 
               
 
-              <time title="Created: 2019-01-03 01:34:23 / Modified: 08:18:03" itemprop="dateCreated datePublished" datetime="2019-01-03T01:34:23-07:00">2019-01-03</time>
+              <time title="Created: 2019-01-03 01:34:23" itemprop="dateCreated datePublished" datetime="2019-01-03T01:34:23-07:00">2019-01-03</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-01-10 19:30:43" itemprop="dateModified" datetime="2019-01-10T19:30:43-07:00">2019-01-10</time>
               
             
           </span>
@@ -457,6 +469,10 @@
 <h3 id="copy"><a href="#copy" class="headerlink" title="copy"></a>copy</h3><p>也是go自带的操作切片的函数，用法如下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">copy</span><span class="params">(dst, src []Type)</span> <span class="title">int</span></span></span><br></pre></td></tr></table></figure>
 <p>需要注意的是，copy会把src中的值以此填到dst中，填满为止，填不满拉倒，不会扩容。由此可知，<strong>dst如果是nil，那dst在copy后还是nil</strong></p>
+<h3 id="range"><a href="#range" class="headerlink" title="range"></a>range</h3><p><code>range</code>应该是是go中的一个熟面孔万金油了，使用不局限与slice和array了，但是，由于在特别是切片的迭代循环中，使用实在太广泛，我们也不得不在此啰嗦下.</p>
+<p>首先，range的使用常见如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> key, value := <span class="keyword">range</span> slice &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>要知道，这里的key, value，以及slice都是一个副本，是临时变量，如果说能够修改的话，是基于这样一个前提，就是即便slice的副本，由于slice的实现是指针的，故而，虽然通过副本来修改的，但是由于通过副本中同一的指针，实际也是达到了修改原来的slice的目的。更多解说，可以参见<a href="https://lylex.github.io/2018/12/26/golang-trap-in-range/" target="_blank" rel="noopener">golang中关于range的坑</a>.</p>
 
       
     </div>
@@ -510,6 +526,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/01/11/how-to-write-a-db/" rel="prev" title="如何写一个像redis一样的数据库">
+                如何写一个像redis一样的数据库 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -588,7 +608,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -609,7 +629,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">4</span>
+                      
+                    
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -636,7 +658,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">7</span>
+                      
+                    
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -700,7 +724,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#go杂谈–array和slice"><span class="nav-number">1.</span> <span class="nav-text">go杂谈–array和slice</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于Array"><span class="nav-number"></span> <span class="nav-text">关于Array</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于Slice"><span class="nav-number"></span> <span class="nav-text">关于Slice</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#切片是数组的引用"><span class="nav-number">1.</span> <span class="nav-text">切片是数组的引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片是变长的"><span class="nav-number">2.</span> <span class="nav-text">切片是变长的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片本身是一个值传递的对象"><span class="nav-number">3.</span> <span class="nav-text">切片本身是一个值传递的对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片操作的函数"><span class="nav-number">4.</span> <span class="nav-text">切片操作的函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#make"><span class="nav-number">4.1.</span> <span class="nav-text">make</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#append"><span class="nav-number">4.2.</span> <span class="nav-text">append</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#copy"><span class="nav-number">4.3.</span> <span class="nav-text">copy</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#go杂谈–array和slice"><span class="nav-number">1.</span> <span class="nav-text">go杂谈–array和slice</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于Array"><span class="nav-number"></span> <span class="nav-text">关于Array</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于Slice"><span class="nav-number"></span> <span class="nav-text">关于Slice</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#切片是数组的引用"><span class="nav-number">1.</span> <span class="nav-text">切片是数组的引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片是变长的"><span class="nav-number">2.</span> <span class="nav-text">切片是变长的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片本身是一个值传递的对象"><span class="nav-number">3.</span> <span class="nav-text">切片本身是一个值传递的对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片操作的函数"><span class="nav-number">4.</span> <span class="nav-text">切片操作的函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#make"><span class="nav-number">4.1.</span> <span class="nav-text">make</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#append"><span class="nav-number">4.2.</span> <span class="nav-text">append</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#copy"><span class="nav-number">4.3.</span> <span class="nav-text">copy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#range"><span class="nav-number">4.4.</span> <span class="nav-text">range</span></a></li></ol></li></ol></div>
             
 
           </div>

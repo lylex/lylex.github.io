@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="lylex&#39;s humble Home">
 <meta property="og:description" content="golang中关于range的坑今天发现之前写的drm中出了一个bug，打印数据库中取出的东西不一样的数据后居然显示的内容一样的，很久以前遇到过类似的错误，现今又重犯了，故而决定把它记下来，希望大家都能引以为戒。 先看一个简化的代码片段： 1234567891011121314151617181920212223242526type Blob struct &amp;#123;        ID str">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-12-27T04:18:46.394Z">
+<meta property="og:updated_time" content="2019-01-11T02:43:25.865Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang中关于range的坑">
 <meta name="twitter:description" content="golang中关于range的坑今天发现之前写的drm中出了一个bug，打印数据库中取出的东西不一样的数据后居然显示的内容一样的，很久以前遇到过类似的错误，现今又重犯了，故而决定把它记下来，希望大家都能引以为戒。 先看一个简化的代码片段： 1234567891011121314151617181920212223242526type Blob struct &amp;#123;        ID str">
@@ -347,12 +347,24 @@
                 
               
 
-              <time title="Created: 2018-12-26 09:01:17 / Modified: 21:18:46" itemprop="dateCreated datePublished" datetime="2018-12-26T09:01:17-07:00">2018-12-26</time>
+              <time title="Created: 2018-12-26 09:01:17" itemprop="dateCreated datePublished" datetime="2018-12-26T09:01:17-07:00">2018-12-26</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-01-10 19:43:25" itemprop="dateModified" datetime="2019-01-10T19:43:25-07:00">2019-01-10</time>
               
             
           </span>
@@ -431,6 +443,9 @@
 <p>果然地址都是<code>0xc000092030</code>，这证明了<strong>append进去的<code>b</code>是同一个object</strong>！！！</p>
 <p>这里的<code>_, b := range originBlobs</code>中使用的是<code>:=</code>，什么意思，就是申明并赋值啊，理论上应该每次都应该重新<code>new</code>出一个新的对象b啊，可是这明摆着没有嘛。</p>
 <p>震惊归震惊，气愤归气愤，可是仔细一想也是合理的。go一定是做了某种优化，首先b是这个循环中的局部变量，甚至是临时变量，大部分情况生命周期也就仅限于这个block了，其次既然b是originBlobs中迭代出来的，那么必然是同类型的，既然是同类型的，那么类似与<code>memcpy</code>的操作是更加高效的，就没有必要重新分配地址然后再销毁之前的了。</p>
+<p>具体是不是真的这样的呢，我们来看看go内部的实现吧：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">for_temp := range</span><br><span class="line">len_temp := len(for_temp)</span><br><span class="line">for index_temp = 0; index_temp &lt; len_temp; index_temp++ &#123;</span><br><span class="line">        value_temp = for_temp[index_temp]</span><br><span class="line">        index = index_temp</span><br><span class="line">        value = value_temp</span><br><span class="line">        original body</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看到了吧，实际range就是一个语法糖，它先copy了一个range后面的切片，然后index和value都是临时变量，传进range原来的代码块中的都是副本，既然是副本，编译器优化就可能这么实现了。</p>
 <p>道理大抵如此，接下来就是怎么解决了。</p>
 <h1 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h1><p>问题很明了了，就是在range中使用了迭代变量（上述代码中的b）的指针，那解决方法也很清楚了，那就是<strong>不要在range块中使用迭代变量的指针</strong>。</p>
 <h2 id="临时变量"><a href="#临时变量" class="headerlink" title="临时变量"></a>临时变量</h2><p>既然说不用迭代变量指针，还要用指针的话，那显而易见，就是用临时变量来替代呗，于是乎，上面代码<code>1</code>处就可以改成：</p>
@@ -577,7 +592,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -598,7 +613,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">4</span>
+                      
+                    
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -625,7 +642,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">7</span>
+                      
+                    
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>

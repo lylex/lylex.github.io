@@ -301,6 +301,254 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/11/how-to-write-a-db/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="lylex">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lylex's humble Home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/11/how-to-write-a-db/" itemprop="url">
+                  如何写一个像redis一样的数据库
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-01-11 01:12:54" itemprop="dateCreated datePublished" datetime="2019-01-11T01:12:54-07:00">2019-01-11</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-01-15 01:14:43" itemprop="dateModified" datetime="2019-01-15T01:14:43-07:00">2019-01-15</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/database/" itemprop="url" rel="index"><span itemprop="name">database</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/01/11/how-to-write-a-db/" class="leancloud_visitors" data-flag-title="如何写一个像redis一样的数据库">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="如何写一个像redis一样的数据库"><a href="#如何写一个像redis一样的数据库" class="headerlink" title="如何写一个像redis一样的数据库"></a>如何写一个像redis一样的数据库</h2><p>这是一个很大的命题，毕竟redis的代码量已经很大了。我们这里只是以学习的目的，来看看如何弄一个麻雀虽小五脏俱全的内存KV数据库，来洞悉数据库的一些基本原理。发现我要写的也就是<a href="https://github.com/tidwall/buntdb" target="_blank" rel="noopener">buntdb</a>的样子，所以，就照着这个来说说吧。</p>
+<p>首先，我们来讲讲需求吧。一个像点样子的数据库，差不多应该具备如下的东西吧：</p>
+<ul>
+<li>可以保存到硬盘</li>
+<li>可以从硬盘load数据</li>
+<li>数据存储于内存，但定期会刷到磁盘中</li>
+<li>能够实现transaction</li>
+<li>有索引</li>
+<li>可以实现数据的CRUD</li>
+<li>最好有类似commit log一样的机制，可以方便commit和rollback</li>
+</ul>
+<h1 id="存盘的数据格式"><a href="#存盘的数据格式" class="headerlink" title="存盘的数据格式"></a>存盘的数据格式</h1><p>数据库要存盘几乎是天经地义的事情，涉及到存盘，就又有一堆的事情了。存哪儿？一般都是存文件吧。以什么格式存呢，不可能按照内存的数据结构一下子来dunm进去吧，这样的肯定会涉及很多类似指针啦，数据结构不对啦，等等问题，而且，刚存完之后改动，是不是要把整个文件都覆盖一遍呢？传完之后需要rollback怎么办呢？很多问题，一时竟无力解决。还好，Redis提供了一个名为<a href="https://redis.io/topics/protocol" target="_blank" rel="noopener">RESP(REdis Serialization Protocol)</a>以及由此带来的<a href="https://redisbook.readthedocs.io/en/latest/internal/aof.html" target="_blank" rel="noopener">AOF</a>的解决方案。</p>
+<p>对于写操作，也就是CRUD中的CUD了，都可以序列化成一个机器方便处理，人也方便读的序列化字串，然后保存下来，在任何时候都方便重建。<br>你比如说，增加一个键为key，值为value的键值对，就可以这么写了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">*3</span><br><span class="line">$3</span><br><span class="line">set</span><br><span class="line">$3</span><br><span class="line">key</span><br><span class="line">$5</span><br><span class="line">value</span><br></pre></td></tr></table></figure>
+<p>稍微解读下，其实就是<code>set key value</code>，上面的数据中，*3表示该命令由三个数组组成，第一个是有三个字符的字符数组，它是set，第二个是有3个字符的字符串，它是key，第三个是5个字符组成的字符串，它是value。</p>
+<p>这样就可以将这个数据给记录下来了，如果某天需要删除它了，就可以<code>del key</code>，也是同样用上面的方式保存，也就正负得零，给消除掉了。这么一来，将数据固化到磁盘时，就可以直接append命令了，所以就有了AOF（append only file）。</p>
+<h1 id="基本的数据结构"><a href="#基本的数据结构" class="headerlink" title="基本的数据结构"></a>基本的数据结构</h1><p>提到了数据结构，首先要有一个数据库实例，像所有的其他数据库一样，启动或者打开它，不用了可以关闭它，此外它还可以承载一些关于数据库的配置或者选项啥的，大致应该像是如下的结构：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> DB <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu        sync.RWMutex      <span class="comment">// the gatekeeper for all fields</span></span><br><span class="line">	file      *os.File          <span class="comment">// the underlying file</span></span><br><span class="line">	buf       []<span class="keyword">byte</span>            <span class="comment">// a buffer to write to</span></span><br><span class="line">	keys      *btree.BTree      <span class="comment">// a tree of all item ordered by key</span></span><br><span class="line">	exps      *btree.BTree      <span class="comment">// a tree of items ordered by expiration</span></span><br><span class="line">	idxs      <span class="keyword">map</span>[<span class="keyword">string</span>]*index <span class="comment">// the index trees.</span></span><br><span class="line">	closed    <span class="keyword">bool</span>              <span class="comment">// set when the database has been closed</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，mu是一个读写锁，负责整个数据库的读写同步。既然是读写锁，那么就是既可以加读锁（RLock），又可以加写锁（Lock），加读锁是阻塞写而不阻塞读，即可以多个客户端继续加读锁，而谁要加写锁就得这些读锁全部释放了，而写锁呢，就是既阻塞读又阻塞写，就是啥也不能干了，除非释放了。</p>
+<p>file是我们做持久化的核心，说白了，就是一个文件。</p>
+<p>buf也就是需要我们来加点料，从而实现成buffer的那个东西。</p>
+<p>keys呢，就是整个数据库中的数据在内存中的存储，我们这需要实现的就是in-memory的kv数据库，所以，就姑且不把它称作cache了，就是内存里的数据吧。为了方便检索，我们这里用b树实现的，很多商业数据库甚至都会用b树来作为其数据存储算法。exps用来存储这些keys的过期时间的，需要达到的效果是，拿出一个key，立马就能查到，它是不是过期了。</p>
+<p>idxs用来存放index的，我们一会再来讨论这如何实现。</p>
+<h1 id="CRUD"><a href="#CRUD" class="headerlink" title="CRUD"></a>CRUD</h1><p>CRUD对应Create，Read，Update和Delete，他们是数据库的基本操作。</p>
+<p>对于KV数据库而言，CU实际是一回事，都是把一个键对应的值弄成期望的，区别的是C之前值是nil，U之前不为nil。那么，我们先来看看数据库的Create应该如何实现：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tx *Tx)</span> <span class="title">Set</span><span class="params">(key, value <span class="keyword">string</span>)</span> <span class="params">(previousValue <span class="keyword">string</span>,	replaced <span class="keyword">bool</span>, err error)</span></span> &#123;</span><br><span class="line">	item := &amp;dbItem&#123;key: key, val: value&#125;</span><br><span class="line">	prev := tx.db.insertIntoDatabase(item)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 插入数据库后，加一条记录到rolback哈希中，以防万一被rollback</span></span><br><span class="line">	<span class="keyword">if</span> _, ok := tx.wc.rollbackItems[key]; !ok &#123;</span><br><span class="line">		tx.wc.rollbackItems[key] = prev</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 需要写磁盘的也另存一份</span></span><br><span class="line">	<span class="keyword">if</span> tx.db.persist &#123;</span><br><span class="line">		tx.wc.commitItems[key] = item</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> previousValue, replaced, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里Tx其实是一个transaction，这没有什么可大惊小怪的，其实，上面的数据库实例也可以看出，一个数据库实例可以包含一个transaction实例的。除去这个，就非常直观了，就是要插入一个键值对，直接将它丢进b树中，为了防止被rolback，也把这个刚插入的键值对保留一份在rollbackItems中，同样，为了在提交时候写磁盘，commitItems中放一份。</p>
+<p>R操作就是这个的简化版了，直接从b树中读取值就可以了，顶多作一点expire的控制，即如果值已经expire了，我们就不返回了，我们这了就不详细说了。</p>
+<p>D操作稍微复杂点，不过更C操作类似，也要在commitItems和rollbackItems中各放一份，然后从b树中删除这个键值对。</p>
+<h1 id="Buffer"><a href="#Buffer" class="headerlink" title="Buffer"></a>Buffer</h1><p>上面我们也提过了，刷磁盘作为我们认定数据是否已经被持久化的必经之路。但是IO是由成本的，而且还不小，那么问题来了，我们以怎样的一个频率来刷磁盘呢？是1秒一刷还是1分钟一刷，还是关闭时候刷？不管怎么样去聪明地设置这个频率，有一点是肯定的，那就是肯定不能每次读写都来一遍刷磁盘（极端情况对数据安全性较高的除外）。</p>
+<p>Buffer通常是解决此类问题的通用做法，就是从数据库层面，如果有数据要写入磁盘了，先攒着，等攒到了一定的程度了，再集中提交写到磁盘中去。当然了，其实我们在写磁盘的时候，是调用了一个磁盘对象的类似driver一样的东西，它也有自己的buffer，它也要等攒到自己认为合适的程度才真正去写，只不过这个过程对于它上层的数据库来说，是透明的。</p>
+<p>好了，那我们来看看，一个基本的buffer应该如何实现：</p>
+<p>首先，在数据库准备写数据时候，这里一般会有一个类似commit的机制，即几个数据操作后，要么commit，要么就rollback，只有commit了，那才是真正的写磁盘了。我们来看看一个commit命令或者函数被调用时，是如何使用buffer的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> key, item := <span class="keyword">range</span> transaction.writeContext.commitItems &#123;</span><br><span class="line">	<span class="keyword">if</span> item == <span class="literal">nil</span> &#123;</span><br><span class="line">		transaction.db.buf = (&amp;dbItem&#123;key: key&#125;).writeDeleteTo(transaction.db.buf)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		transaction.db.buf = item.writeSetTo(transaction.db.buf)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里给出了一个transaction在结束处理key-value对时对于持久化那些需要持久化的数据时的操作，因为每个transaction都对应一个数据库实例，然后每个transaction还具有一个writeContext成员变量，writeContext主要记录关于修改的数据，然后他有个commitItems结构，所有的需要写磁盘的键值对都放在里面，对于CRUD，R只是读，不需要写磁盘的，CUD中，C跟U差不多，C是针对一个键来创建，而U是针对一个键来覆盖，而D处理起来比较特殊，我们用AOF时候，如果要删除一个键对应的值，那么就在commitItems放一个这个key，它对应的值是nil，当我们遍历到这个数组时，看到了就知道是要删除的，那要删除的怎么存盘呢？哦，上面说了AOF中，只要加上<code>DEL key</code>就行了。C跟U时候比较直观，就是<code>SET key value</code>。最终的结果，就是将这些<code>DEL</code>和<code>SET</code>的字符串放到buf中。</p>
+<p>当所有的commitItems都已经写到buffer了，就可以提交了，毕竟是一个commit嘛，还是需要当即看到持久化的，那么就如下执行：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tx.db.file.Write(tx.db.buf)</span><br><span class="line">tx.db.file.Sync()</span><br></pre></td></tr></table></figure>
+<p>即将buffer写入到文件中，然后再告诉文件，不要等文件自己的buffer机制延后写了，立即给我存磁盘吧。</p>
+<p>有一种操作，类似于其他数据库的dump备份操作，需要将内存中的内容直接dump到某个文件中（io.Writer），也是类似于写文件，只是这个把整个keys的内容都dump进去。<br>这里也是需要buffer来实现的，先遍历keys，然后把keys序列化进buffer中，如果超过4MB了，就写buffer，遍历完之后，再把剩余的buffer写一下，因为最后一次没有满足4MB的没有写进去，大致代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">Save</span><span class="params">(wr io.Writer)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	db.keys.Ascend(<span class="function"><span class="keyword">func</span><span class="params">(item btree.Item)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">		dbi := item.(*dbItem)</span><br><span class="line">		buf = dbi.writeSetTo(buf)</span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">len</span>(buf) &gt; <span class="number">1024</span>*<span class="number">1024</span>*<span class="number">4</span> &#123;</span><br><span class="line">			<span class="comment">// flush when buffer is over 4MB</span></span><br><span class="line">			_, err = wr.Write(buf)</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">			&#125;</span><br><span class="line">			buf = buf[:<span class="number">0</span>]</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(buf) &gt; <span class="number">0</span> &#123;</span><br><span class="line">		_, err = wr.Write(buf)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">   ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可能大家也看出来了，在实现中，keys是维护的内存数据库，真正存盘的操作实际还是commit中的那些个操作。</p>
+<h1 id="Transaction"><a href="#Transaction" class="headerlink" title="Transaction"></a>Transaction</h1><p>Transaction理论上是可以跨数据库的，我们这里先淡化这个问题，认为只在一个数据库的情况下讨论Transaction吧。如此一来，一个Transaction就对应了一个数据库，开启一个Transaction时候，必须指定是为了哪个数据库在执行Transaction。大致数据结构如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Tx <span class="keyword">struct</span> &#123;</span><br><span class="line">	db       *DB             <span class="comment">// 一个Transaction对应的数据。</span></span><br><span class="line">	wc       *txWriteContext <span class="comment">// 关于需要存数据的信息，也为了方便回滚</span></span><br><span class="line">    writable <span class="keyword">bool</span>            <span class="comment">// 是否需要写数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>提到Transaction，相信大家一定第一反应是想到了加锁解锁，可是以上数据结构居然没有锁，有点令人失望哈。<br>实际上，Tx结构中包含了一个数据库，而数据库有一个RWMutex，这就好办了，可以借用一下嘛：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tx *Tx)</span> <span class="title">lock</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> tx.writable &#123;</span><br><span class="line">		tx.db.mu.Lock()</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		tx.db.mu.RLock()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样解锁动作是其相反操作。<br>想想看，仅仅是借用一下，偷点懒而已嘛？显然不是，因为这个transaction的目标是数据库，它必须保证数据库在transaction中不会在其他地方修改，且修改前后状态一致，所以就要统一的地方去加这个锁，显然加在数据库实例中是最合适的。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">Transaction</span><span class="params">(fn <span class="keyword">func</span>(tx *Tx)</span> <span class="title">error</span>) <span class="params">(err error)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 创建transaction实例</span></span><br><span class="line">	tx := &amp;Tx&#123;</span><br><span class="line">		db: db,</span><br><span class="line">		wc: &amp;txWriteContext&#123;</span><br><span class="line">			rollbackItems:   <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]*dbItem),</span><br><span class="line">			rollbackIndexes: <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]*index),</span><br><span class="line">			commitItems:     <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]*dbItem),</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 加锁</span></span><br><span class="line">	tx.lock()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			_ = tx.Rollback()</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		err = tx.Commit()</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	err = fn(tx)</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看以上的Transaction函数，它开启了一个transaction block，然后在这个block里面执行传入的fn函数，如果执行成功则Commit，执行不成功则回退，跟我们通常理解差不多。这里显示地通过<code>tx.lock</code>给数据库加上了一个锁（读锁或者写锁，取决于这个transaction是否需要修改数据，如果需要修改，则阻塞读也阻塞写，如果不需要，则加读锁，只阻塞写即可），可是什么时候解锁呢？对了，在<code>Rollback()</code>或者<code>Commit()</code>中解锁，我们来看看：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tx *Tx)</span> <span class="title">Commit</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> err error</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 遍历需要提交的数据，写进buffer</span></span><br><span class="line">	tx.db.buf = tx.db.buf[:<span class="number">0</span>]</span><br><span class="line">	<span class="keyword">for</span> key, item := <span class="keyword">range</span> tx.wc.commitItems &#123;</span><br><span class="line">		<span class="keyword">if</span> item == <span class="literal">nil</span> &#123;</span><br><span class="line">			tx.db.buf = (&amp;dbItem&#123;key: key&#125;).writeDeleteTo(tx.db.buf)</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			tx.db.buf = item.writeSetTo(tx.db.buf)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> _, err = tx.db.file.Write(tx.db.buf); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// 出现了错误了，只能回滚</span></span><br><span class="line">		tx.rollbackInner()</span><br><span class="line">	&#125;</span><br><span class="line">	_ = tx.db.file.Sync()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 解锁</span></span><br><span class="line">	tx.unlock()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 清除transaction与该数据库的关联</span></span><br><span class="line">	tx.db = <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tx *Tx)</span> <span class="title">Rollback</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	tx.rollbackInner()</span><br><span class="line"></span><br><span class="line">	tx.unlock()</span><br><span class="line"></span><br><span class="line">	tx.db = <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tx *Tx)</span> <span class="title">rollbackInner</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 恢复删除的key</span></span><br><span class="line">	<span class="keyword">for</span> key, item := <span class="keyword">range</span> tx.wc.rollbackItems &#123;</span><br><span class="line">		tx.db.deleteFromDatabase(&amp;dbItem&#123;key: key&#125;)</span><br><span class="line">		<span class="keyword">if</span> item != <span class="literal">nil</span> &#123;</span><br><span class="line">			tx.db.insertIntoDatabase(item)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 重建index</span></span><br><span class="line">	<span class="keyword">for</span> name, idx := <span class="keyword">range</span> tx.wc.rollbackIndexes &#123;</span><br><span class="line">		<span class="built_in">delete</span>(tx.db.idxs, name)</span><br><span class="line">		<span class="keyword">if</span> idx != <span class="literal">nil</span> &#123;</span><br><span class="line">			tx.db.idxs[name] = idx</span><br><span class="line">			idx.rebuild()</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="数据文件压缩"><a href="#数据文件压缩" class="headerlink" title="数据文件压缩"></a>数据文件压缩</h1><p>我们上面也知道，由于是AOF中数据删除之后，并不会被清掉，而是又加上了一个删除的操作，久而久之，数据文件会越来越膨胀，也就需要我们定期地进行数据压缩了。把那些删除掉了数据给剔除掉，或者，因为内存中和数据文件中是理论上一致的，我们可以同内存中把数据给重新整理一遍，也算是压缩了，因为实际上都是把删除掉的数据给剔除了。</p>
+<p>我们可以指定一个压缩策略，假设我们有一个专门的后头进程或者其他，它会每秒定期检测，我们是否需要压缩。那怎么检测到需要压缩呢？由于db背后的那个file的读写点一直在变化，我们可以<code>pos, err := db.file.Seek(0, 1)</code>得到当前的读写点，当读写点满足某个设定的条件（比如说，达到上次读写点的2倍）时，我们就可以对其施行压缩。</p>
+<p>如何压缩呢，我们这里画了一个流程图草图：</p>
+<p><img src="/2019/01/11/how-to-write-a-db/compact.png" width="250" height="500" alt="compact"></p>
+<p>实现代码也可以参见下面的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">Compact</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	db.mu.Lock()</span><br><span class="line"></span><br><span class="line">	fname := db.file.Name()</span><br><span class="line">	tmpname := fname + <span class="string">".tmp"</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 记录文件末尾的位置</span></span><br><span class="line">	endpos, err := db.file.Seek(<span class="number">0</span>, <span class="number">2</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 这里并没有block数据库，文件指针指到当前写到的位置，然后松开锁，继续允许追加原来的数据库文件，而在新的临时文件上修改</span></span><br><span class="line">	db.mu.Unlock()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建一个干净的临时文件, 一切结束后就销毁</span></span><br><span class="line">	f, err := os.Create(tmpname)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		_ = f.Close()</span><br><span class="line">		_ = os.RemoveAll(tmpname)</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> buf []<span class="keyword">byte</span></span><br><span class="line">	pivot := <span class="string">""</span></span><br><span class="line">	done := <span class="literal">false</span></span><br><span class="line">	<span class="keyword">for</span> !done &#123;</span><br><span class="line">		err := <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">			db.mu.RLock()</span><br><span class="line">			<span class="keyword">defer</span> db.mu.RUnlock()</span><br><span class="line">			done = <span class="literal">true</span></span><br><span class="line">			<span class="keyword">var</span> n <span class="keyword">int</span></span><br><span class="line">			<span class="comment">// 以pivot为标记，每次取1000个或者64M进行存档, 如果没有存完，记下pivot，done设成false，下次继续来</span></span><br><span class="line">			db.keys.AscendGreaterOrEqual(&amp;dbItem&#123;key: pivot&#125;,</span><br><span class="line">				<span class="function"><span class="keyword">func</span><span class="params">(item btree.Item)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">					dbi := item.(*dbItem)</span><br><span class="line">					<span class="comment">// 1000 items or 64MB buffer</span></span><br><span class="line">					<span class="keyword">if</span> n &gt; <span class="number">1000</span> || <span class="built_in">len</span>(buf) &gt; <span class="number">64</span>*<span class="number">1024</span>*<span class="number">1024</span> &#123;</span><br><span class="line">						pivot = dbi.key</span><br><span class="line">						done = <span class="literal">false</span></span><br><span class="line">						<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">					&#125;</span><br><span class="line">					buf = dbi.writeSetTo(buf)</span><br><span class="line">					n++</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">				&#125;,</span><br><span class="line">			)</span><br><span class="line">			<span class="keyword">if</span> <span class="built_in">len</span>(buf) &gt; <span class="number">0</span> &#123;</span><br><span class="line">				<span class="keyword">if</span> _, err := f.Write(buf); err != <span class="literal">nil</span> &#123;</span><br><span class="line">					<span class="keyword">return</span> err</span><br><span class="line">				&#125;</span><br><span class="line">				buf = buf[:<span class="number">0</span>]</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">		&#125;()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 这里重新打开一次原来的数据库文件，seek到之前指定的endpos点，然后b把后来新增的数据拷贝到temp文件，最终关闭所有文件，把temp文件</span></span><br><span class="line">	<span class="comment">// 正名为正式文件</span></span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">		db.mu.Lock()</span><br><span class="line">		<span class="keyword">defer</span> db.mu.Unlock()</span><br><span class="line">		aof, err := os.Open(fname)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; _ = aof.Close() &#125;()</span><br><span class="line">		<span class="keyword">if</span> _, err := aof.Seek(endpos, <span class="number">0</span>); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> _, err := io.Copy(f, aof); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// Close all files</span></span><br><span class="line">		<span class="keyword">if</span> err := aof.Close(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> err := f.Close(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> err := db.file.Close(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> err := os.Rename(tmpname, fname); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="built_in">panic</span>(err)</span><br><span class="line">		&#125;</span><br><span class="line">		db.file, err = os.OpenFile(fname, os.O_CREATE|os.O_RDWR, <span class="number">0666</span>)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="built_in">panic</span>(err)</span><br><span class="line">		&#125;</span><br><span class="line">		pos, err := db.file.Seek(<span class="number">0</span>, <span class="number">2</span>)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		db.lastaofsz = <span class="keyword">int</span>(pos)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="读盘"><a href="#读盘" class="headerlink" title="读盘"></a>读盘</h1><p>读盘就是将磁盘上的数据装载到内存中，每次关闭再打开，肯定要涉及这样一个操作，因此，它也是数据库持久化相关的一个特别重要的功能。</p>
+<p>读盘其实很简单，就是把AOF文件中的命令一条一条地插入进去就好了，这里涉及一个键值过期的问题，我们怎么处理呢？我们可以读到文件的上次修改时间，然后再读取键的过期时间，如此对比下，就可以知道该键是否过期了，如果过期，不存便是了。</p>
+<p>以下便是其代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">load</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	rd := db.file</span><br><span class="line"></span><br><span class="line">	fi, _ := db.file.Stat()</span><br><span class="line">	modTime := fi.ModTime</span><br><span class="line"></span><br><span class="line">	data := <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="number">4096</span>)</span><br><span class="line">	parts := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="number">0</span>, <span class="number">8</span>)</span><br><span class="line">	r := bufio.NewReader(rd)</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="comment">// read a single command.</span></span><br><span class="line">		<span class="comment">// first we should read the number of parts that the of the command</span></span><br><span class="line">		line, err := r.ReadBytes(<span class="string">'\n'</span>)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> <span class="built_in">len</span>(line) &gt; <span class="number">0</span> &#123;</span><br><span class="line">				<span class="comment">// got an eof but also data. this should be an unexpected eof.</span></span><br><span class="line">				<span class="keyword">return</span> io.ErrUnexpectedEOF</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> err == io.EOF &#123;</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 每一个命令语句都是以*开头</span></span><br><span class="line">		<span class="comment">//		*3</span></span><br><span class="line">		<span class="comment">//		$3</span></span><br><span class="line">		<span class="comment">//		set</span></span><br><span class="line">		<span class="comment">//		$7</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">//		LICENSE</span></span><br><span class="line">		<span class="comment">//		$170</span></span><br><span class="line">		<span class="comment">//		&#123;"FileName":"LICENSE","Count":1,"Blobs":[&#123;"FileName":"LICENSE","Dir":"/Users/xuq3/workspace/drm/dist/temp","CreatedAt":"2018-12-22T22:38:13.229951+08:00","ID":"Rvv3Jg"&#125;]&#125;</span></span><br><span class="line">		<span class="comment">// 表示该命令由三个数组组成，第一个是有三个字符的字符数组，它是set，第二个是有7个字符的字符串数组，它是LICENSE，。。。。</span></span><br><span class="line">		<span class="keyword">if</span> line[<span class="number">0</span>] != <span class="string">'*'</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> ErrInvalid</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// convert the string number to and int</span></span><br><span class="line">		<span class="keyword">var</span> n <span class="keyword">int</span></span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">len</span>(line) == <span class="number">4</span> &amp;&amp; line[<span class="number">2</span>] == <span class="string">'\r'</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> line[<span class="number">1</span>] &lt; <span class="string">'0'</span> || line[<span class="number">1</span>] &gt; <span class="string">'9'</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> ErrInvalid</span><br><span class="line">			&#125;</span><br><span class="line">			n = <span class="keyword">int</span>(line[<span class="number">1</span>] - <span class="string">'0'</span>)</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// 要么等于4要么大于等于5</span></span><br><span class="line">			<span class="keyword">if</span> <span class="built_in">len</span>(line) &lt; <span class="number">5</span> || line[<span class="built_in">len</span>(line)<span class="number">-2</span>] != <span class="string">'\r'</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> ErrInvalid</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">for</span> i := <span class="number">1</span>; i &lt; <span class="built_in">len</span>(line)<span class="number">-2</span>; i++ &#123;</span><br><span class="line">				<span class="keyword">if</span> line[i] &lt; <span class="string">'0'</span> || line[i] &gt; <span class="string">'9'</span> &#123;</span><br><span class="line">					<span class="keyword">return</span> ErrInvalid</span><br><span class="line">				&#125;</span><br><span class="line">				n = n*<span class="number">10</span> + <span class="keyword">int</span>(line[i]-<span class="string">'0'</span>)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// read each part of the command.</span></span><br><span class="line">		parts = parts[:<span class="number">0</span>]</span><br><span class="line">		<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; n; i++ &#123;</span><br><span class="line">			<span class="comment">// read the number of bytes of the part.</span></span><br><span class="line">			line, err := r.ReadBytes(<span class="string">'\n'</span>)</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> line[<span class="number">0</span>] != <span class="string">'$'</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> ErrInvalid</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// convert the string number to and int</span></span><br><span class="line">			<span class="keyword">var</span> n <span class="keyword">int</span></span><br><span class="line">			<span class="keyword">if</span> <span class="built_in">len</span>(line) == <span class="number">4</span> &amp;&amp; line[<span class="built_in">len</span>(line)<span class="number">-2</span>] == <span class="string">'\r'</span> &#123;</span><br><span class="line">				<span class="keyword">if</span> line[<span class="number">1</span>] &lt; <span class="string">'0'</span> || line[<span class="number">1</span>] &gt; <span class="string">'9'</span> &#123;</span><br><span class="line">					<span class="keyword">return</span> ErrInvalid</span><br><span class="line">				&#125;</span><br><span class="line">				n = <span class="keyword">int</span>(line[<span class="number">1</span>] - <span class="string">'0'</span>)</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				<span class="keyword">if</span> <span class="built_in">len</span>(line) &lt; <span class="number">5</span> || line[<span class="built_in">len</span>(line)<span class="number">-2</span>] != <span class="string">'\r'</span> &#123;</span><br><span class="line">					<span class="keyword">return</span> ErrInvalid</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">for</span> i := <span class="number">1</span>; i &lt; <span class="built_in">len</span>(line)<span class="number">-2</span>; i++ &#123;</span><br><span class="line">					<span class="keyword">if</span> line[i] &lt; <span class="string">'0'</span> || line[i] &gt; <span class="string">'9'</span> &#123;</span><br><span class="line">						<span class="keyword">return</span> ErrInvalid</span><br><span class="line">					&#125;</span><br><span class="line">					n = n*<span class="number">10</span> + <span class="keyword">int</span>(line[i]-<span class="string">'0'</span>)</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// resize the read buffer</span></span><br><span class="line">			<span class="keyword">if</span> <span class="built_in">len</span>(data) &lt; n+<span class="number">2</span> &#123;</span><br><span class="line">				dataln := <span class="built_in">len</span>(data)</span><br><span class="line">				<span class="keyword">for</span> dataln &lt; n+<span class="number">2</span> &#123;</span><br><span class="line">					dataln *= <span class="number">2</span></span><br><span class="line">				&#125;</span><br><span class="line">				data = <span class="built_in">make</span>([]<span class="keyword">byte</span>, dataln)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> _, err = io.ReadFull(r, data[:n+<span class="number">2</span>]); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> data[n] != <span class="string">'\r'</span> || data[n+<span class="number">1</span>] != <span class="string">'\n'</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> ErrInvalid</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// copy string</span></span><br><span class="line">			parts = <span class="built_in">append</span>(parts, <span class="keyword">string</span>(data[:n]))</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// finished reading the command</span></span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">len</span>(parts) == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (parts[<span class="number">0</span>][<span class="number">0</span>] == <span class="string">'s'</span> || parts[<span class="number">0</span>][<span class="number">1</span>] == <span class="string">'S'</span>) &amp;&amp;</span><br><span class="line">			(parts[<span class="number">0</span>][<span class="number">1</span>] == <span class="string">'e'</span> || parts[<span class="number">0</span>][<span class="number">1</span>] == <span class="string">'E'</span>) &amp;&amp;</span><br><span class="line">			(parts[<span class="number">0</span>][<span class="number">2</span>] == <span class="string">'t'</span> || parts[<span class="number">0</span>][<span class="number">2</span>] == <span class="string">'T'</span>) &#123;</span><br><span class="line">			<span class="comment">// SET</span></span><br><span class="line">			<span class="comment">// set 一共三个或者五个字段, 如果五个，则必须为set x x ex x</span></span><br><span class="line">			<span class="keyword">if</span> <span class="built_in">len</span>(parts) &lt; <span class="number">3</span> || <span class="built_in">len</span>(parts) == <span class="number">4</span> || <span class="built_in">len</span>(parts) &gt; <span class="number">5</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> ErrInvalid</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> <span class="built_in">len</span>(parts) == <span class="number">5</span> &#123;</span><br><span class="line">				<span class="keyword">if</span> strings.ToLower(parts[<span class="number">3</span>]) != <span class="string">"ex"</span> &#123;</span><br><span class="line">					<span class="keyword">return</span> ErrInvalid</span><br><span class="line">				&#125;</span><br><span class="line">				ex, err := strconv.ParseInt(parts[<span class="number">4</span>], <span class="number">10</span>, <span class="number">64</span>)</span><br><span class="line">				<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">					<span class="keyword">return</span> err</span><br><span class="line">				&#125;</span><br><span class="line">				now := time.Now()</span><br><span class="line">				dur := (time.Duration(ex) * time.Second) - now.Sub(modTime)</span><br><span class="line">				<span class="keyword">if</span> dur &gt; <span class="number">0</span> &#123;</span><br><span class="line">					db.insertIntoDatabase(&amp;dbItem&#123;</span><br><span class="line">						key: parts[<span class="number">1</span>],</span><br><span class="line">						val: parts[<span class="number">2</span>],</span><br><span class="line">						opts: &amp;dbItemOpts&#123;</span><br><span class="line">							ex:   <span class="literal">true</span>,</span><br><span class="line">							exat: now.Add(dur),</span><br><span class="line">						&#125;,</span><br><span class="line">					&#125;)</span><br><span class="line">				&#125;</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				db.insertIntoDatabase(&amp;dbItem&#123;key: parts[<span class="number">1</span>], val: parts[<span class="number">2</span>]&#125;)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">else</span> <span class="keyword">if</span> (parts[<span class="number">0</span>][<span class="number">0</span>] == <span class="string">'d'</span> || parts[<span class="number">0</span>][<span class="number">1</span>] == <span class="string">'D'</span>) &amp;&amp;</span><br><span class="line">			(parts[<span class="number">0</span>][<span class="number">1</span>] == <span class="string">'e'</span> || parts[<span class="number">0</span>][<span class="number">1</span>] == <span class="string">'E'</span>) &amp;&amp;</span><br><span class="line">			(parts[<span class="number">0</span>][<span class="number">2</span>] == <span class="string">'l'</span> || parts[<span class="number">0</span>][<span class="number">2</span>] == <span class="string">'L'</span>) &#123;</span><br><span class="line">			<span class="comment">// DEL</span></span><br><span class="line">			<span class="keyword">if</span> <span class="built_in">len</span>(parts) != <span class="number">2</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> ErrInvalid</span><br><span class="line">			&#125;</span><br><span class="line">			db.deleteFromDatabase(&amp;dbItem&#123;key: parts[<span class="number">1</span>]&#125;)</span><br><span class="line">		&#125; <span class="keyword">else</span> <span class="keyword">if</span> (parts[<span class="number">0</span>][<span class="number">0</span>] == <span class="string">'f'</span> || parts[<span class="number">0</span>][<span class="number">1</span>] == <span class="string">'F'</span>) &amp;&amp;</span><br><span class="line">			strings.ToLower(parts[<span class="number">0</span>]) == <span class="string">"flushdb"</span> &#123;</span><br><span class="line">			db.keys = btree.New(btreeDegrees, <span class="literal">nil</span>)</span><br><span class="line">			db.exps = btree.New(btreeDegrees, &amp;exctx&#123;db&#125;)</span><br><span class="line">			db.idxs = <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]*index)</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> ErrInvalid</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Index"><a href="#Index" class="headerlink" title="Index"></a>Index</h1><p>Index是一个数据库必备的基本要素，是加速搜索的重要途径。<a href="https://github.com/google/btree" target="_blank" rel="noopener">Btree</a>是一个比较不错的实现索引的算法，就连Redis的默认索引也是它。</p>
+<p>那么KV数据库中的索引是用来干嘛的呢？不想SQL那种是针对列的某个模式划分，KV数据库中，可以认为是key符合某个规则或者模式的集合，是字符串层面的，例如，可以这样使用：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">db.CreateIndex(<span class="string">"names"</span>, <span class="string">"*"</span>, IndexStringFunc)</span><br><span class="line"></span><br><span class="line">db.Transaction(<span class="function"><span class="keyword">func</span> <span class="params">(tx *Tx)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	tx.Set(<span class="string">"user:0:name"</span>, <span class="string">"tom"</span>, <span class="literal">nil</span>)</span><br><span class="line">	tx.Set(<span class="string">"user:1:name"</span>, <span class="string">"Randi"</span>, <span class="literal">nil</span>)</span><br><span class="line">	tx.Set(<span class="string">"user:2:name"</span>, <span class="string">"jane"</span>, <span class="literal">nil</span>)</span><br><span class="line">	tx.Set(<span class="string">"user:4:name"</span>, <span class="string">"Janet"</span>, <span class="literal">nil</span>)</span><br><span class="line">	tx.Set(<span class="string">"user:5:name"</span>, <span class="string">"Paula"</span>, <span class="literal">nil</span>)</span><br><span class="line">	tx.Set(<span class="string">"user:6:name"</span>, <span class="string">"peter"</span>, <span class="literal">nil</span>)</span><br><span class="line">	tx.Set(<span class="string">"user:7:name"</span>, <span class="string">"Terri"</span>, <span class="literal">nil</span>)</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">tx.Ascend(<span class="string">"names"</span>, <span class="function"><span class="keyword">func</span><span class="params">(key, val <span class="keyword">string</span>)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">fmt.Printf(buf, <span class="string">"%s %s\n"</span>, key, val)</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>上面的程序将所有的key都放到名为names的索引中，接下来就可以通过遍历names这个index指定的集合了。</p>
+<p>那么他们是怎么实现的呢？<br>(未完待续)</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/03/go-array-and-slice/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -347,12 +595,24 @@
                 
               
 
-              <time title="Created: 2019-01-03 01:34:23 / Modified: 08:18:03" itemprop="dateCreated datePublished" datetime="2019-01-03T01:34:23-07:00">2019-01-03</time>
+              <time title="Created: 2019-01-03 01:34:23" itemprop="dateCreated datePublished" datetime="2019-01-03T01:34:23-07:00">2019-01-03</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-01-10 19:30:43" itemprop="dateModified" datetime="2019-01-10T19:30:43-07:00">2019-01-10</time>
               
             
           </span>
@@ -459,6 +719,10 @@
 <h3 id="copy"><a href="#copy" class="headerlink" title="copy"></a>copy</h3><p>也是go自带的操作切片的函数，用法如下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">copy</span><span class="params">(dst, src []Type)</span> <span class="title">int</span></span></span><br></pre></td></tr></table></figure>
 <p>需要注意的是，copy会把src中的值以此填到dst中，填满为止，填不满拉倒，不会扩容。由此可知，<strong>dst如果是nil，那dst在copy后还是nil</strong></p>
+<h3 id="range"><a href="#range" class="headerlink" title="range"></a>range</h3><p><code>range</code>应该是是go中的一个熟面孔万金油了，使用不局限与slice和array了，但是，由于在特别是切片的迭代循环中，使用实在太广泛，我们也不得不在此啰嗦下.</p>
+<p>首先，range的使用常见如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> key, value := <span class="keyword">range</span> slice &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>要知道，这里的key, value，以及slice都是一个副本，是临时变量，如果说能够修改的话，是基于这样一个前提，就是即便slice的副本，由于slice的实现是指针的，故而，虽然通过副本来修改的，但是由于通过副本中同一的指针，实际也是达到了修改原来的slice的目的。更多解说，可以参见<a href="https://lylex.github.io/2018/12/26/golang-trap-in-range/" target="_blank" rel="noopener">golang中关于range的坑</a>.</p>
 
           
         
@@ -562,12 +826,24 @@
                 
               
 
-              <time title="Created: 2018-12-26 09:01:17 / Modified: 21:18:46" itemprop="dateCreated datePublished" datetime="2018-12-26T09:01:17-07:00">2018-12-26</time>
+              <time title="Created: 2018-12-26 09:01:17" itemprop="dateCreated datePublished" datetime="2018-12-26T09:01:17-07:00">2018-12-26</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-01-10 19:43:25" itemprop="dateModified" datetime="2019-01-10T19:43:25-07:00">2019-01-10</time>
               
             
           </span>
@@ -648,6 +924,9 @@
 <p>果然地址都是<code>0xc000092030</code>，这证明了<strong>append进去的<code>b</code>是同一个object</strong>！！！</p>
 <p>这里的<code>_, b := range originBlobs</code>中使用的是<code>:=</code>，什么意思，就是申明并赋值啊，理论上应该每次都应该重新<code>new</code>出一个新的对象b啊，可是这明摆着没有嘛。</p>
 <p>震惊归震惊，气愤归气愤，可是仔细一想也是合理的。go一定是做了某种优化，首先b是这个循环中的局部变量，甚至是临时变量，大部分情况生命周期也就仅限于这个block了，其次既然b是originBlobs中迭代出来的，那么必然是同类型的，既然是同类型的，那么类似与<code>memcpy</code>的操作是更加高效的，就没有必要重新分配地址然后再销毁之前的了。</p>
+<p>具体是不是真的这样的呢，我们来看看go内部的实现吧：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">for_temp := range</span><br><span class="line">len_temp := len(for_temp)</span><br><span class="line">for index_temp = 0; index_temp &lt; len_temp; index_temp++ &#123;</span><br><span class="line">        value_temp = for_temp[index_temp]</span><br><span class="line">        index = index_temp</span><br><span class="line">        value = value_temp</span><br><span class="line">        original body</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看到了吧，实际range就是一个语法糖，它先copy了一个range后面的切片，然后index和value都是临时变量，传进range原来的代码块中的都是副本，既然是副本，编译器优化就可能这么实现了。</p>
 <p>道理大抵如此，接下来就是怎么解决了。</p>
 <h1 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h1><p>问题很明了了，就是在range中使用了迭代变量（上述代码中的b）的指针，那解决方法也很清楚了，那就是<strong>不要在range块中使用迭代变量的指针</strong>。</p>
 <h2 id="临时变量"><a href="#临时变量" class="headerlink" title="临时变量"></a>临时变量</h2><p>既然说不用迭代变量指针，还要用指针的话，那显而易见，就是用临时变量来替代呗，于是乎，上面代码<code>1</code>处就可以改成：</p>
@@ -2470,7 +2749,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2491,7 +2770,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">4</span>
+                      
+                    
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -2518,7 +2799,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">7</span>
+                      
+                    
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
