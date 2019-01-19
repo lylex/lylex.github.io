@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="lylex&#39;s humble Home">
 <meta property="og:description" content="go杂谈–array和sliceArray是几乎所有我们见到的编程语言中都有的这么一个东西，而slice似乎是go特有的。这里我们就稍微花点时间，来杂谈漫谈一下这两个东西，以期避其坑，用其长。 关于Array和其他语言中的数组一样，go语言中的数组是同一种类型的集合，并且它是定长度的。它是一种组合类型，传入时候，是值传递的，不像C++中还有所谓的地址属性。概念上，它更像一个结构体对象。如果有什么需">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-11T02:30:43.519Z">
+<meta property="og:updated_time" content="2019-01-18T07:34:22.072Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="go杂谈--array和slice">
 <meta name="twitter:description" content="go杂谈–array和sliceArray是几乎所有我们见到的编程语言中都有的这么一个东西，而slice似乎是go特有的。这里我们就稍微花点时间，来杂谈漫谈一下这两个东西，以期避其坑，用其长。 关于Array和其他语言中的数组一样，go语言中的数组是同一种类型的集合，并且它是定长度的。它是一种组合类型，传入时候，是值传递的，不像C++中还有所谓的地址属性。概念上，它更像一个结构体对象。如果有什么需">
@@ -364,7 +364,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-01-10 19:30:43" itemprop="dateModified" datetime="2019-01-10T19:30:43-07:00">2019-01-10</time>
+                <time title="Modified: 2019-01-18 00:34:22" itemprop="dateModified" datetime="2019-01-18T00:34:22-07:00">2019-01-18</time>
               
             
           </span>
@@ -434,7 +434,7 @@
 <li>两边是同类型的才有资格比较，比如，[3]int和[4]int</li>
 <li>对应位置的元素是相等的</li>
 </ol>
-<h1 id="关于Slice"><a href="#关于Slice" class="headerlink" title="关于Slice"></a>关于Slice</h1><p>Slice，一般称作切片，基本像是go特有的，还是有不少可以说道的。切片跟数组非常相似，都是某种类型的集合，只是没有固定长度。它的实现的结构大致如下：</p>
+<h1 id="结构与实现"><a href="#结构与实现" class="headerlink" title="结构与实现"></a>结构与实现</h1><p>Slice，一般称作切片，基本像是go特有的，还是有不少可以说道的。切片跟数组非常相似，都是某种类型的集合，只是没有固定长度。它的实现的结构大致如下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> slice <span class="keyword">struct</span> &#123;</span><br><span class="line">    firstElement *someType</span><br><span class="line">    <span class="built_in">len</span> <span class="keyword">int</span></span><br><span class="line">    <span class="built_in">cap</span> <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>其中，len指的是它当前的元素个数，cap指的是它的容量，而firstElement指的是第一个元素的地址。<br>围绕这个数据结构，它衍生出了如下特性：</p>
 <h2 id="切片是数组的引用"><a href="#切片是数组的引用" class="headerlink" title="切片是数组的引用"></a>切片是数组的引用</h2><p>这个可以认为是切片的精髓了！<br>从上面的示意结构体也可以看出，这里与数据相关的只有firstElement，而且它仅仅是一个指针。由此可见，切片本身并不保有数据，它指向一个一个具体的数组，也就是说，<strong>它是某个数组的引用</strong>。</p>
@@ -608,7 +608,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-count">9</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -724,7 +724,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#go杂谈–array和slice"><span class="nav-number">1.</span> <span class="nav-text">go杂谈–array和slice</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于Array"><span class="nav-number"></span> <span class="nav-text">关于Array</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于Slice"><span class="nav-number"></span> <span class="nav-text">关于Slice</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#切片是数组的引用"><span class="nav-number">1.</span> <span class="nav-text">切片是数组的引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片是变长的"><span class="nav-number">2.</span> <span class="nav-text">切片是变长的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片本身是一个值传递的对象"><span class="nav-number">3.</span> <span class="nav-text">切片本身是一个值传递的对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片操作的函数"><span class="nav-number">4.</span> <span class="nav-text">切片操作的函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#make"><span class="nav-number">4.1.</span> <span class="nav-text">make</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#append"><span class="nav-number">4.2.</span> <span class="nav-text">append</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#copy"><span class="nav-number">4.3.</span> <span class="nav-text">copy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#range"><span class="nav-number">4.4.</span> <span class="nav-text">range</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#go杂谈–array和slice"><span class="nav-number">1.</span> <span class="nav-text">go杂谈–array和slice</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于Array"><span class="nav-number"></span> <span class="nav-text">关于Array</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结构与实现"><span class="nav-number"></span> <span class="nav-text">结构与实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#切片是数组的引用"><span class="nav-number">1.</span> <span class="nav-text">切片是数组的引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片是变长的"><span class="nav-number">2.</span> <span class="nav-text">切片是变长的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片本身是一个值传递的对象"><span class="nav-number">3.</span> <span class="nav-text">切片本身是一个值传递的对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切片操作的函数"><span class="nav-number">4.</span> <span class="nav-text">切片操作的函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#make"><span class="nav-number">4.1.</span> <span class="nav-text">make</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#append"><span class="nav-number">4.2.</span> <span class="nav-text">append</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#copy"><span class="nav-number">4.3.</span> <span class="nav-text">copy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#range"><span class="nav-number">4.4.</span> <span class="nav-text">range</span></a></li></ol></li></ol></div>
             
 
           </div>
