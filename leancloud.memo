@@ -7,4 +7,5 @@
 {"title":"golang中关于range的坑","url":"/2018/12/26/golang-trap-in-range/"},
 {"title":"go杂谈--array和slice","url":"/2019/01/03/go-array-and-slice/"},
 {"title":"如何写一个像redis一样的数据库","url":"/2019/01/11/how-to-write-a-db/"},
+{"title":"go杂谈--map","url":"/2019/01/16/go-talk-map-go/"},
 ]

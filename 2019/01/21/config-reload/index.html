@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="如何实现配置文件的热加载所谓配置文件热加载（hot-load），就是指，当应用程序配置文件改动之后，不需要重启应用service，就可以使更改生效。这样就可以使得系统的因为修改配置带来的宕机时间为零，由此可见，对于一个高可用的系统，配置热加载还是很必要的。本篇就是想来探究下，如何实现一个热加载。 实现的途径如果把不需要重启service作为我们的终极目标，那么我们以是否需要人为干预来作为分类标准，">
+<meta name="keywords" content="Golang,microservice">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何实现配置文件的热加载">
+<meta property="og:url" content="http://yoursite.com/2019/01/21/config-reload/index.html">
+<meta property="og:site_name" content="lylex&#39;s humble Home">
+<meta property="og:description" content="如何实现配置文件的热加载所谓配置文件热加载（hot-load），就是指，当应用程序配置文件改动之后，不需要重启应用service，就可以使更改生效。这样就可以使得系统的因为修改配置带来的宕机时间为零，由此可见，对于一个高可用的系统，配置热加载还是很必要的。本篇就是想来探究下，如何实现一个热加载。 实现的途径如果把不需要重启service作为我们的终极目标，那么我们以是否需要人为干预来作为分类标准，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-01-22T08:14:25.348Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何实现配置文件的热加载">
+<meta name="twitter:description" content="如何实现配置文件的热加载所谓配置文件热加载（hot-load），就是指，当应用程序配置文件改动之后，不需要重启应用service，就可以使更改生效。这样就可以使得系统的因为修改配置带来的宕机时间为零，由此可见，对于一个高可用的系统，配置热加载还是很必要的。本篇就是想来探究下，如何实现一个热加载。 实现的途径如果把不需要重启service作为我们的终极目标，那么我们以是否需要人为干预来作为分类标准，">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/01/21/config-reload/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>如何实现配置文件的热加载 | lylex's humble Home</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lylex's humble Home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />About</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Categories</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/21/config-reload/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="lylex">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lylex's humble Home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何实现配置文件的热加载
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-01-21 02:22:30" itemprop="dateCreated datePublished" datetime="2019-01-21T02:22:30-07:00">2019-01-21</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-01-22 01:14:25" itemprop="dateModified" datetime="2019-01-22T01:14:25-07:00">2019-01-22</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/microservice/" itemprop="url" rel="index"><span itemprop="name">microservice</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="如何实现配置文件的热加载"><a href="#如何实现配置文件的热加载" class="headerlink" title="如何实现配置文件的热加载"></a>如何实现配置文件的热加载</h2><p>所谓配置文件热加载（hot-load），就是指，当应用程序配置文件改动之后，不需要重启应用service，就可以使更改生效。这样就可以使得系统的因为修改配置带来的宕机时间为零，由此可见，对于一个高可用的系统，配置热加载还是很必要的。<br>本篇就是想来探究下，如何实现一个热加载。</p>
+<h1 id="实现的途径"><a href="#实现的途径" class="headerlink" title="实现的途径"></a>实现的途径</h1><p>如果把不需要重启service作为我们的终极目标，那么我们以是否需要人为干预来作为分类标准，我们大致可能把热加载的实现分为半自动型的和全自动型的。<br>姑且先不提好坏优劣，我们先来看看它们都是可以如何实现。</p>
+<h2 id="半自动"><a href="#半自动" class="headerlink" title="半自动"></a>半自动</h2><p>所谓半自动，即需要人为干预。那么如何人为干预呢？当然是不能重启系统，要不然我们就是白扯了，还谈什么热加载呢。这里讲的半自动，其实是人工发送一些类似SIGHUP的信号，然后service捕获后，采取一个reload行为。</p>
+<p>这个看起来很傻的行为，也是被很多系统采用了，Postgres就是采用了这个方案，当Postgres修改某些配置时候，我们只要发送<code>kill -HUP PID</code>触发<code>SIGHUP</code>信号，然后那些更改就生效了。需要强调一下的是，SIGHUP本来是表示链接到服务的终端已经断开连接了，由于在daemon中似乎永远不会有收到链接的情况，所以，就约定俗成地变成了可以使服务重新加载配置了。</p>
+<p>道理似乎很简单，下面我们来看实现。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">	<span class="string">"os"</span></span><br><span class="line">	<span class="string">"os/signal"</span></span><br><span class="line">	<span class="string">"syscall"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">loadConfig</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">"Read config file"</span>)</span><br><span class="line"></span><br><span class="line">	fmt.Println(<span class="string">"Parse config file"</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Lock()</span></span><br><span class="line">	fmt.Println(<span class="string">"Overwrite origin config"</span>)</span><br><span class="line">	<span class="comment">// Unlock()</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">setSig</span><span class="params">()</span></span> &#123;</span><br><span class="line">	c := <span class="built_in">make</span>(<span class="keyword">chan</span> os.Signal, <span class="number">1</span>)</span><br><span class="line">	done := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">bool</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">	signal.Notify(c, syscall.SIGHUP)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">for</span> s := <span class="keyword">range</span> c &#123;</span><br><span class="line">			<span class="keyword">switch</span> s &#123;</span><br><span class="line">			<span class="keyword">case</span> syscall.SIGHUP:</span><br><span class="line">				fmt.Println(<span class="string">"ATTENTION: Now will reload the config"</span>)</span><br><span class="line">				loadConfig()</span><br><span class="line">				done &lt;- <span class="literal">true</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	&lt;-done</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	loadConfig()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	setSig()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的例子中，就是启动一个协程，订阅了一个SIGHUP信号，一旦这个信号到来，会被捕获，然后就执行一次加载配置的过程。事实上<code>setSig()</code>可以另用一个协程去完成，伴随主协程的整个生命周期，在后台工作。</p>
+<p>我们运行如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go build -o app</span><br><span class="line">nohup ./app &amp;</span><br><span class="line">kill -HUP 45753</span><br></pre></td></tr></table></figure>
+<p>运行结果发现，确实是执行了repload操作了。注意，这里不要用go run来执行，也不要忘记了nohup，道理相信大家想想也明白。</p>
+<h2 id="全自动"><a href="#全自动" class="headerlink" title="全自动"></a>全自动</h2><p>以上的这个过程可以实现我们的目的，但是需要我们的人工介入，既然是人工介入了，就增加了出错的可能性，因此，自然而然地，我们会想到，能不能完全实现自动检测呢？</p>
+<p>加载过程跟上面的一样，只是可以设置一个定时器，每隔一段时间去查文件的修改时间，如果发现刚刚修改过的，那我们就知道需要重新加载了。道理似乎也很简单，那我们来完成这么一个小小的功能吧。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">	<span class="string">"os"</span></span><br><span class="line">	<span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	ConfigFile = <span class="string">"config.conf"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">loadConfig</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">"Read config file"</span>)</span><br><span class="line"></span><br><span class="line">	fmt.Println(<span class="string">"Parse config file"</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Lock()</span></span><br><span class="line">	fmt.Println(<span class="string">"Overwrite origin config"</span>)</span><br><span class="line">	<span class="comment">// Unlock()</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">checkConfig</span><span class="params">()</span></span> &#123;</span><br><span class="line">	ticker := time.NewTicker(time.Second * <span class="number">10</span>)</span><br><span class="line">	<span class="keyword">for</span> _ = <span class="keyword">range</span> ticker.C &#123;</span><br><span class="line">		f, _ := os.Open(ConfigFile)</span><br><span class="line">		<span class="keyword">defer</span> f.Close()</span><br><span class="line">		fInfo, _ := f.Stat()</span><br><span class="line">		mTime := fInfo.ModTime()</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> mTime.After(time.Now().Add(time.Duration(<span class="number">-10</span> * time.Second))) &#123;</span><br><span class="line">			fmt.Println(<span class="string">"ATTENTION: Now will reload the config"</span>)</span><br><span class="line">			loadConfig()</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	loadConfig()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> checkConfig()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">select</span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>程序变化主要在checkConfig()函数，这里开启了一个协程，这个协程了指定了一个定时器，每隔10秒钟就检查一次，检查什么呢，检查配置文件的修改时间是不是距离当前10秒钟之内，如果是，表示刚刚修改过的，那就要重新加载配置了。</p>
+<p>验证一下，运行如下程序：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> run main.<span class="keyword">go</span></span><br></pre></td></tr></table></figure>
+<p>然后修改下配置文件config.conf，那么可以看到输出表示已经重新加载配置了。</p>
+<h1 id="Viper热加载分析"><a href="#Viper热加载分析" class="headerlink" title="Viper热加载分析"></a>Viper热加载分析</h1><p>提到热加载，其实我一直在考虑一个库，<a href="https://github.com/spf13/viper" target="_blank" rel="noopener">Viper</a>，它算是go的开源库中管理配置相关的比较经典的了，它也有热加载的功能，那让我们来看看它是怎么实现热加载的功能的呢？</p>
+<p>它的热加载功能主要在一个函数中，它是<code>WatchConfig()</code>，这个函数呢，大体上是这么一个结构：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">initWG := sync.WaitGroup&#123;&#125;</span><br><span class="line">initWG.Add(<span class="number">1</span>)</span><br><span class="line">   <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">     <span class="comment">// do something</span></span><br><span class="line">   &#125;</span><br><span class="line">   initWG.Wait()</span><br></pre></td></tr></table></figure>
+<p>这个“do something”的block主要就是做事情的一个协程，那么它就行做了哪些事情呢？我们来看下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 设置文件检测器</span></span><br><span class="line">	watcher, err := fsnotify.NewWatcher()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatal(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> watcher.Close()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 获取配置文件名</span></span><br><span class="line">	filename, err := v.getConfigFile()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Printf(<span class="string">"error: %v\n"</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 记录配置文件名和文件所在的目录，如果是链接文件，还需要获取其真实的文件名</span></span><br><span class="line">	configFile := filepath.Clean(filename)</span><br><span class="line">	configDir, _ := filepath.Split(configFile)</span><br><span class="line">	realConfigFile, _ := filepath.EvalSymlinks(filename)</span><br><span class="line"></span><br><span class="line">	eventsWG := sync.WaitGroup&#123;&#125;</span><br><span class="line">	eventsWG.Add(<span class="number">1</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			<span class="keyword">select</span> &#123;</span><br><span class="line">			<span class="comment">// 文件监测器有事件了</span></span><br><span class="line">			<span class="keyword">case</span> event, ok := &lt;-watcher.Events:</span><br><span class="line">				<span class="keyword">if</span> !ok &#123; <span class="comment">// 'Events' channel is closed</span></span><br><span class="line">					eventsWG.Done()</span><br><span class="line">					<span class="keyword">return</span></span><br><span class="line">				&#125;</span><br><span class="line">				currentConfigFile, _ := filepath.EvalSymlinks(filename)</span><br><span class="line">				<span class="comment">// we only care about the config file with the following cases:</span></span><br><span class="line">				<span class="comment">// 1 - if the config file was modified or created</span></span><br><span class="line">				<span class="comment">// 2 - if the real path to the config file changed (eg: k8s ConfigMap replacement)</span></span><br><span class="line">				<span class="keyword">const</span> writeOrCreateMask = fsnotify.Write | fsnotify.Create</span><br><span class="line">				<span class="keyword">if</span> (filepath.Clean(event.Name) == configFile &amp;&amp;</span><br><span class="line">					event.Op&amp;writeOrCreateMask != <span class="number">0</span>) ||</span><br><span class="line">					(currentConfigFile != <span class="string">""</span> &amp;&amp; currentConfigFile != realConfigFile) &#123;</span><br><span class="line">					realConfigFile = currentConfigFile</span><br><span class="line">					err := v.ReadInConfig()</span><br><span class="line">					<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">						log.Printf(<span class="string">"error reading config file: %v\n"</span>, err)</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">if</span> v.onConfigChange != <span class="literal">nil</span> &#123;</span><br><span class="line">						v.onConfigChange(event)</span><br><span class="line">					&#125;</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> filepath.Clean(event.Name) == configFile &amp;&amp;</span><br><span class="line">					event.Op&amp;fsnotify.Remove&amp;fsnotify.Remove != <span class="number">0</span> &#123;</span><br><span class="line">					eventsWG.Done()</span><br><span class="line">					<span class="keyword">return</span></span><br><span class="line">				&#125;</span><br><span class="line">			<span class="comment">// 文件监测器报错了</span></span><br><span class="line">			<span class="keyword">case</span> err, ok := &lt;-watcher.Errors:</span><br><span class="line">				<span class="keyword">if</span> ok &#123; <span class="comment">// 'Errors' channel is not closed</span></span><br><span class="line">					log.Printf(<span class="string">"watcher error: %v\n"</span>, err)</span><br><span class="line">				&#125;</span><br><span class="line">				eventsWG.Done()</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="comment">// 设置文件监测点是整个配置文件所在的目录</span></span><br><span class="line">	watcher.Add(configDir)</span><br><span class="line">	<span class="comment">// 注意，这里上级协程是可以先继续的，不在阻塞在这里了，这样在调用这个函数的时候，WatchConfig（）就不需要用go WatchConfig()了</span></span><br><span class="line">	initWG.Done()   <span class="comment">// done initalizing the watch in this go routine, so the parent routine can move on...</span></span><br><span class="line">	eventsWG.Wait() <span class="comment">// now, wait for event loop to end in this go-routine...</span></span><br><span class="line">&#125;()</span><br></pre></td></tr></table></figure>
+<p>这里先设置了文件检测器，专门来检测配置文件的改动情况，然后分别获取配置文件的文件名和目录信息，然后再启用一个新的协程，来轮询文件监测器的情况，要么监测器会报错，要么就是有了文件事件了，报错的处理简单，记录错误退出即可，有了事件了，我们这里处理两种事件，正如注释里说的，要么是文件添加或者修改了，要么是链接文件指向的真实文件被改动了，不管哪种情况，都是表示要读取配置文件了。</p>
+<p>这里有一个小trikey，涉及到这个热加载函数如何使用，所以也不得不说了，按照我们上面给出的全自动的例子，我们这里是要这么用的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> viper.WatchConfig()</span><br></pre></td></tr></table></figure>
+<p>可以倒是可以，不过还是要麻烦用户，慢点执行调用的函数，万一早早退出了，那就没招了，不是很好；为了防止这种情况，viper需要你同步地执行这个函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">viper.WatchConfig()</span><br></pre></td></tr></table></figure>
+<p>然后这个函数主体里使用了一个WaitGroup去等待函数里开出的一个协程执行完毕，开出的这个协程执行一个简单的配置，然后再开出一个携程去做轮询，等待文件监测的事件，这时再让主体程序可以接着走，轮询的协程再自己飞一会。还是挺合理的吧。</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>一般存在两种实现配置热加载的方法：</p>
+<ol>
+<li>半自动：监测用户给出的系统信号</li>
+<li>全自动：监测配置文件变化<br>Viper是采用的后者。</li>
+</ol>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://github.com/spf13/viper" target="_blank" rel="noopener">Viper</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:13px;">-------------END 欢迎评论 一起交流学习-------------</div>
+    
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Golang/" rel="tag"># Golang</a>
+          
+            <a href="/tags/microservice/" rel="tag"># microservice</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/16/go-talk-map-go/" rel="next" title="go杂谈--map">
+                <i class="fa fa-chevron-left"></i> go杂谈--map
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+    <div id="gitalk-container">
+    </div>
+
+  
+
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">lylex</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/your-user-name" target="_blank" title="GitHub"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://twitter.com/your-user-name" target="_blank" title="Twitter"><i class="fa fa-fw fa-globe"></i>Twitter</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://qianzhou.tech/" title="Home" target="_blank">Home</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#如何实现配置文件的热加载"><span class="nav-number">1.</span> <span class="nav-text">如何实现配置文件的热加载</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现的途径"><span class="nav-number"></span> <span class="nav-text">实现的途径</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#半自动"><span class="nav-number">1.</span> <span class="nav-text">半自动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全自动"><span class="nav-number">2.</span> <span class="nav-text">全自动</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Viper热加载分析"><span class="nav-number"></span> <span class="nav-text">Viper热加载分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number"></span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number"></span> <span class="nav-text">参考</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lylex</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '8c7ab95bc5f3ca386164',
+          clientSecret: 'e6f62aad49d8965638cea5ebe3bb7763a337f960',
+          repo: 'lylex.github.io',
+          owner: 'lylex',
+          admin: ['lylex'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
