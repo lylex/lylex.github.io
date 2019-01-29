@@ -108,25 +108,25 @@
 
 
 
-  <meta name="description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
-<meta name="keywords" content="C++">
+  <meta name="description" content="刚同事问我关于SQL中的JOIN的知识，我回答地不严谨，故而，在此一本正经地整理记录一遍吧，结合一个实例，以期把简单的事说透彻吧。 首先我们来说一个例子，一会我们会用到的，假设我们在给小朋友们分零食，按照他们的岁数准备的，不能弄错： 123456789101112131415161718lylex=# select * from Person; personid | name | age-----">
+<meta name="keywords" content="database">
 <meta property="og:type" content="article">
-<meta property="og:title" content="C++原子操作">
-<meta property="og:url" content="http://yoursite.com/2018/08/02/cpp-atomic-functions/index.html">
+<meta property="og:title" content="关于SQL中的JOIN">
+<meta property="og:url" content="http://yoursite.com/2019/01/28/join-in-sql/index.html">
 <meta property="og:site_name" content="lylex&#39;s humble Home">
-<meta property="og:description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
+<meta property="og:description" content="刚同事问我关于SQL中的JOIN的知识，我回答地不严谨，故而，在此一本正经地整理记录一遍吧，结合一个实例，以期把简单的事说透彻吧。 首先我们来说一个例子，一会我们会用到的，假设我们在给小朋友们分零食，按照他们的岁数准备的，不能弄错： 123456789101112131415161718lylex=# select * from Person; personid | name | age-----">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-12-26T15:21:37.671Z">
+<meta property="og:updated_time" content="2019-01-29T03:44:01.521Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="C++原子操作">
-<meta name="twitter:description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
+<meta name="twitter:title" content="关于SQL中的JOIN">
+<meta name="twitter:description" content="刚同事问我关于SQL中的JOIN的知识，我回答地不严谨，故而，在此一本正经地整理记录一遍吧，结合一个实例，以期把简单的事说透彻吧。 首先我们来说一个例子，一会我们会用到的，假设我们在给小朋友们分零食，按照他们的岁数准备的，不能弄错： 123456789101112131415161718lylex=# select * from Person; personid | name | age-----">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/08/02/cpp-atomic-functions/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/01/28/join-in-sql/"/>
 
 
 
@@ -136,7 +136,7 @@
   };
 </script>
 
-  <title>C++原子操作 | lylex's humble Home</title>
+  <title>关于SQL中的JOIN | lylex's humble Home</title>
   
 
 
@@ -305,7 +305,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/02/cpp-atomic-functions/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/28/join-in-sql/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="lylex">
@@ -322,7 +322,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">C++原子操作
+          <h1 class="post-title" itemprop="name headline">关于SQL中的JOIN
               
             
           </h1>
@@ -347,24 +347,12 @@
                 
               
 
-              <time title="Created: 2018-08-02 02:41:20" itemprop="dateCreated datePublished" datetime="2018-08-02T02:41:20-06:00">2018-08-02</time>
+              <time title="Created: 2019-01-28 19:47:57 / Modified: 20:44:01" itemprop="dateCreated datePublished" datetime="2019-01-28T19:47:57-07:00">2019-01-28</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-12-26 08:21:37" itemprop="dateModified" datetime="2018-12-26T08:21:37-07:00">2018-12-26</time>
               
             
           </span>
@@ -381,7 +369,7 @@
                 <span class="post-meta-item-text">In</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/database/" itemprop="url" rel="index"><span itemprop="name">database</span></a></span>
 
                 
                 
@@ -415,23 +403,22 @@
       
 
       
-        <p>在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数<code>count++</code>这个简单的操作，你能保证它是原子的嘛？显然不能的。<br>或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。<br>好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看他们的定义和用法吧。</p>
-<h1 id="n-式"><a href="#n-式" class="headerlink" title="n++式"></a>n++式</h1><p>这类函数对传入指针指定的内存进行数值操作，操作完将数值填入指针指向内存，但返回指针指向的内存的原始值，就像我们经常遇到的<code>n++</code>一样，n加一了，最终返回加一前的n。具体函数列表如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type __sync_fetch_and_add (type *ptr, type value, ...)  <span class="comment">// +</span></span><br><span class="line">type __sync_fetch_and_sub (type *ptr, type value, ...)  <span class="comment">// -</span></span><br><span class="line">type __sync_fetch_and_or (type *ptr, type value, ...)   <span class="comment">// |</span></span><br><span class="line">type __sync_fetch_and_and (type *ptr, type value, ...)  <span class="comment">// &amp;</span></span><br><span class="line">type __sync_fetch_and_xor (type *ptr, type value, ...)  <span class="comment">// ^</span></span><br><span class="line">type __sync_fetch_and_nand (type *ptr, type value, ...) <span class="comment">// (~m)^n</span></span><br></pre></td></tr></table></figure>
-<p>就拿<code>__sync_fetch_and_add</code>举例吧，这个相当于如下代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tmp = *ptr;</span><br><span class="line">*ptr += value;</span><br><span class="line"><span class="keyword">return</span> tmp;</span><br></pre></td></tr></table></figure>
-<p>举个实际使用的例子吧，也拿<code>__sync_fetch_and_add</code>说事，其他也差不多了：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> n = <span class="number">6</span>;</span><br><span class="line">  <span class="keyword">auto</span> x = __sync_fetch_and_add(&amp;n, <span class="number">1</span>);</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; x &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// 输出 6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="n式"><a href="#n式" class="headerlink" title="++n式"></a>++n式</h1><p>同样的，这样的函数就对应<code>++n</code>这种形式，即每次操作完了，返回操作后的值。列表如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type __sync_add_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_sub_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_or_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_and_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_xor_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_nand_and_fetch (type *ptr, type value, ...)</span><br></pre></td></tr></table></figure>
-<p>同样拿最简单的<code>__sync_add_and_fetch</code>举例子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> n = <span class="number">6</span>;</span><br><span class="line">  <span class="keyword">auto</span> x = __sync_add_and_fetch(&amp;n, <span class="number">1</span>);</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; x &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// 输出 7</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="Compare-and-Swap"><a href="#Compare-and-Swap" class="headerlink" title="Compare-and-Swap"></a>Compare-and-Swap</h1><p>这个对应于一个需求，查看某个值有没有被改过，改过就算了，没有改过的话，就来修改下它吧。列表如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> __sync_bool_compare_and_swap (type *ptr, type oldval type newval, ...)</span><br><span class="line">type __sync_val_compare_and_swap (type *ptr, type oldval type newval, ...)</span><br></pre></td></tr></table></figure>
-<p>都是比较ptr对应的值是不是跟oldval相等，如果相等，那么就给<em>ptr写入newval，区别就是bool版本是newval成功写入了就返回true，而type版本返回</em>ptr操作前的值。</p>
-<h1 id="Memory-barrier"><a href="#Memory-barrier" class="headerlink" title="Memory barrier"></a>Memory barrier</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">__sync_synchronize (...) <span class="comment">// 获得一个full memory barrier.</span></span><br><span class="line"></span><br><span class="line">type __sync_lock_test_and_set (type *ptr, type value, ...) <span class="comment">// 将value写到*ptr，返回写之前的*ptr，获得一个acquire barrier</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> __sync_lock_release (type *ptr, ...) <span class="comment">// 用于释放__sync_lock_test_and_set加的锁，并将*ptr全部写0，获得一个release barrier</span></span><br></pre></td></tr></table></figure>
-<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>以上原子操作只能一次更新或读取一个内存单元，如果涉及多个内存单元一起修改的时候，就只能加锁了，这些原子操作爱莫能助了。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>  <a href="http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html" target="_blank" rel="noopener">http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html</a></p>
+        <p>刚同事问我关于SQL中的JOIN的知识，我回答地不严谨，故而，在此一本正经地整理记录一遍吧，结合一个实例，以期把简单的事说透彻吧。</p>
+<p>首先我们来说一个例子，一会我们会用到的，假设我们在给小朋友们分零食，按照他们的岁数准备的，不能弄错：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">lylex=# select * from Person;</span><br><span class="line"> personid | name | age</span><br><span class="line"><span class="comment">----------+------+-----</span></span><br><span class="line">        1 | tom  |   5</span><br><span class="line">        2 | jim  |   6</span><br><span class="line">        3 | ming |   7</span><br><span class="line">        4 | tony |   8</span><br><span class="line">        5 | lily |   7</span><br><span class="line">(5 rows)</span><br><span class="line"></span><br><span class="line">lylex=# select * from snack;</span><br><span class="line"> id | targetage |    name</span><br><span class="line"><span class="comment">----+-----------+------------</span></span><br><span class="line">  1 |         7 | qqSuger</span><br><span class="line">  2 |         8 | bigApple</span><br><span class="line">  3 |         9 | dryNoddles</span><br><span class="line">  4 |        10 | jumpSuger</span><br><span class="line">(4 rows)</span><br></pre></td></tr></table></figure>
+<p>可以看到有五个小朋友，他们分别是56787岁，而我们的零食呢，只是给7岁，8岁，9岁，10岁的小朋友准备的，6岁及以下的另有安排。<br>那好，我们就来看看，不同的JOIN方法，得到的什么结果呢？</p>
+<h1 id="INNER-JOIN"><a href="#INNER-JOIN" class="headerlink" title="INNER JOIN"></a>INNER JOIN</h1><p>事实上，INNER JOIN是求左右两个表的交集，其余部分都剔除，它是Postgres的default的JOIN值，也就是说INNER JOIN可以写成JOIN，那么我们来看看，INNER JOIN后的结果是什么：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">lylex=# select * from Person join snack on Person.age = snack.targetage;</span><br><span class="line"> personid | name | age | id | targetage |   name</span><br><span class="line">----------+------+-----+----+-----------+----------</span><br><span class="line">        3 | ming |   7 |  1 |         7 | qqSuger</span><br><span class="line">        4 | tony |   8 |  2 |         8 | bigApple</span><br><span class="line">        5 | lily |   7 |  1 |         7 | qqSuger</span><br><span class="line">(3 rows)</span><br></pre></td></tr></table></figure>
+<p>以上可以看到，岁数小的两个小朋友就被剔除了，然后适合9岁和10岁的零食也被剔除了，剩下的就是符合JOIN点<code>Person.age = snack.targetage</code>的交集了。</p>
+<h1 id="OUTER-JOIN"><a href="#OUTER-JOIN" class="headerlink" title="OUTER JOIN"></a>OUTER JOIN</h1><p>OUTER JOIN顾名思义，就是向外JOIN，也就是以扩大为目的的。至于如何扩大，跟谁比是扩大的，又衍生除了LEFT OUTER JOIN，RIGHT OUTER JOIN和FULL OUTER JOIN，接下来我们就来看看各自是怎么样的。</p>
+<h2 id="LEFT-OUTER-JOIN"><a href="#LEFT-OUTER-JOIN" class="headerlink" title="LEFT OUTER JOIN"></a>LEFT OUTER JOIN</h2><p>LEFT OUTER JOIN表示以左边的为基准，进行扩展。左边的行列维持不变，右边的符合JOIN点的列才收编进来，且看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">lylex=# select * from Person left outer join snack on Person.age = snack.targetage;</span><br><span class="line"> personid | name | age | id | targetage |   name</span><br><span class="line">----------+------+-----+----+-----------+----------</span><br><span class="line">        1 | tom  |   5 |    |           |</span><br><span class="line">        2 | jim  |   6 |    |           |</span><br><span class="line">        3 | ming |   7 |  1 |         7 | qqSuger</span><br><span class="line">        4 | tony |   8 |  2 |         8 | bigApple</span><br><span class="line">        5 | lily |   7 |  1 |         7 | qqSuger</span><br><span class="line">(5 rows)</span><br></pre></td></tr></table></figure>
+<p>看到了吧，Person中5个小孩，结果就是5行，snack中，符合这个<code>Person.age = snack.targetage;</code>的拉进来，其余的都不要，宁可5岁的和6岁的空着。</p>
+<h2 id="RIGHT-OUTER-JOIN"><a href="#RIGHT-OUTER-JOIN" class="headerlink" title="RIGHT OUTER JOIN"></a>RIGHT OUTER JOIN</h2><p>与LEFT OUTER JOIN相对，RIGHT OUTER JOIN是以右边的为基准进行收编：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">lylex=# select * from Person right outer join snack on Person.age = snack.targetage;</span><br><span class="line"> personid | name | age | id | targetage |    name</span><br><span class="line">----------+------+-----+----+-----------+------------</span><br><span class="line">        5 | lily |   7 |  1 |         7 | qqSuger</span><br><span class="line">        3 | ming |   7 |  1 |         7 | qqSuger</span><br><span class="line">        4 | tony |   8 |  2 |         8 | bigApple</span><br><span class="line">          |      |     |  3 |         9 | dryNoddles</span><br><span class="line">          |      |     |  4 |        10 | jumpSuger</span><br><span class="line">(5 rows)</span><br></pre></td></tr></table></figure>
+<p>以snack为基准，4行已经有了，不管Person中能不能匹配到，然后到Person中进行扫描，一行一行看，符合JOIN点的都往里面填，突然发现lily和ming都符合7这个JOIN点，怎么办呢？不要紧，把7这个JOIN点右边表所在的行复制一遍，然后往里面填，然后qqSuger这样就有两行值了。</p>
+<h2 id="FULL-OUTER-JOIN"><a href="#FULL-OUTER-JOIN" class="headerlink" title="FULL OUTER JOIN"></a>FULL OUTER JOIN</h2><p>以上都是以一边为基准，那么有没有两遍都是参照基准的JOIN方法呢？当然是有的，那就是FULL OUTER JOIN，就是要保证左边和右边都会在JOIN的结果中出现，如果不符合JOIN点的，留空就行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">lylex=# select * from Person full outer join snack on Person.age = snack.targetage;</span><br><span class="line"> personid | name | age | id | targetage |    name</span><br><span class="line">----------+------+-----+----+-----------+------------</span><br><span class="line">        1 | tom  |   5 |    |           |</span><br><span class="line">        2 | jim  |   6 |    |           |</span><br><span class="line">        3 | ming |   7 |  1 |         7 | qqSuger</span><br><span class="line">        4 | tony |   8 |  2 |         8 | bigApple</span><br><span class="line">        5 | lily |   7 |  1 |         7 | qqSuger</span><br><span class="line">          |      |     |  4 |        10 | jumpSuger</span><br><span class="line">          |      |     |  3 |         9 | dryNoddles</span><br><span class="line">(7 rows)</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -463,7 +450,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/C/" rel="tag"># C++</a>
+            <a href="/tags/database/" rel="tag"># database</a>
           
         </div>
       
@@ -476,8 +463,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/26/google-cpp-style/" rel="next" title="《Google C++风格指南》读书笔记">
-                <i class="fa fa-chevron-left"></i> 《Google C++风格指南》读书笔记
+              <a href="/2019/01/26/go-talk-interface/" rel="next" title="go杂谈--interface">
+                <i class="fa fa-chevron-left"></i> go杂谈--interface
               </a>
             
           </div>
@@ -485,10 +472,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/08/09/cpp-template/" rel="prev" title="从一段代码来看C++模板">
-                从一段代码来看C++模板 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -689,7 +672,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#n-式"><span class="nav-number">1.</span> <span class="nav-text">n++式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#n式"><span class="nav-number">2.</span> <span class="nav-text">++n式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Compare-and-Swap"><span class="nav-number">3.</span> <span class="nav-text">Compare-and-Swap</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Memory-barrier"><span class="nav-number">4.</span> <span class="nav-text">Memory barrier</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#INNER-JOIN"><span class="nav-number">1.</span> <span class="nav-text">INNER JOIN</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#OUTER-JOIN"><span class="nav-number">2.</span> <span class="nav-text">OUTER JOIN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LEFT-OUTER-JOIN"><span class="nav-number">2.1.</span> <span class="nav-text">LEFT OUTER JOIN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RIGHT-OUTER-JOIN"><span class="nav-number">2.2.</span> <span class="nav-text">RIGHT OUTER JOIN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FULL-OUTER-JOIN"><span class="nav-number">2.3.</span> <span class="nav-text">FULL OUTER JOIN</span></a></li></ol></li></ol></div>
             
 
           </div>

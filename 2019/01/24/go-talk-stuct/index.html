@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="lylex&#39;s humble Home">
 <meta property="og:description" content="go杂谈–struct关于struct，其实跟C里的那个struct差不多，都是称作结构体，然后又带了一点OOP的东西，就是带有method，以下简要谈谈关于那些我认为的struct的坑或者注意点吧，实际真的没有什么深文大义。 指针接受函数和值接受函数可以互通我们知道，Go里有指针接受函数，和值接受函数，看起来比较绕，不过也好懂。Go自身做了一个特别省心做法，就是这两者是可以互通的，比如： 123">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-26T03:54:45.798Z">
+<meta property="og:updated_time" content="2019-01-26T05:04:49.686Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="go杂谈--struct">
 <meta name="twitter:description" content="go杂谈–struct关于struct，其实跟C里的那个struct差不多，都是称作结构体，然后又带了一点OOP的东西，就是带有method，以下简要谈谈关于那些我认为的struct的坑或者注意点吧，实际真的没有什么深文大义。 指针接受函数和值接受函数可以互通我们知道，Go里有指针接受函数，和值接受函数，看起来比较绕，不过也好懂。Go自身做了一个特别省心做法，就是这两者是可以互通的，比如： 123">
@@ -364,7 +364,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-01-25 20:54:45" itemprop="dateModified" datetime="2019-01-25T20:54:45-07:00">2019-01-25</time>
+                <time title="Modified: 2019-01-25 22:04:49" itemprop="dateModified" datetime="2019-01-25T22:04:49-07:00">2019-01-25</time>
               
             
           </span>
@@ -424,7 +424,10 @@
 <p>可是，这段代码不工作，go不支持这么做。</p>
 <p>如果需要扩展，可以如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">type String string</span><br><span class="line"></span><br><span class="line">func (s String) Method() &#123;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>或者使用如下更通用的方法：</p>
+<p>这个方法也启发了我们用来简化一些需要经常用到的某个外部struct，例如，我们经常用到外部的一个名为<code>external.VeryComplicateStruct</code>的结构体，我们可以将它本地化成如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type Ext external.VeryComplicateStruct</span><br></pre></td></tr></table></figure>
+<p>接下来，只要使用Ext就可以了，省去了写那么一长串的东西了。</p>
+<p>解决扩展的问题，或者可以使用如下更通用的方法：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> A <span class="keyword">struct</span> &#123;</span><br><span class="line">        name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> B <span class="keyword">struct</span> &#123;</span><br><span class="line">        A</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *B)</span> <span class="title">Method</span><span class="params">()</span></span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">"test me"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">        a := A&#123;</span><br><span class="line">                name: <span class="string">"test"</span>,</span><br><span class="line">        &#125;</span><br><span class="line">        fmt.Println(a.name)</span><br><span class="line"></span><br><span class="line">        b := B&#123;</span><br><span class="line">                A: A&#123;</span><br><span class="line">                        name: <span class="string">"testB"</span>,</span><br><span class="line">                &#125;,</span><br><span class="line">        &#125;</span><br><span class="line">        b.Method()</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1 id="方法覆盖"><a href="#方法覆盖" class="headerlink" title="方法覆盖"></a>方法覆盖</h1><p>其实在go中，没有所谓的重载和覆盖而言，官方称之为promote，简言之，就是当一个struct嵌入一个struct之后，如果外部struct中没有相同的方法或者成员变量的话，内部的方法或者变量都提升为外部的，可以直接访问；如果内部的和外部的名字冲突的话，那就不会被提升了。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Base <span class="keyword">struct</span> &#123;</span><br><span class="line">	other <span class="keyword">string</span></span><br><span class="line">	name  <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *Base)</span> <span class="title">PrintName</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">"In the base"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Wrapper <span class="keyword">struct</span> &#123;</span><br><span class="line">	name <span class="keyword">string</span></span><br><span class="line">	Base</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *Wrapper)</span> <span class="title">PrintName</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">"In the wrapper"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> w Wrapper</span><br><span class="line">	w.PrintName()      <span class="comment">// In the wrapper</span></span><br><span class="line">	w.Base.PrintName() <span class="comment">// In the base</span></span><br><span class="line"></span><br><span class="line">	w.other = <span class="string">"the other"</span></span><br><span class="line">	fmt.Println(w.other) <span class="comment">// the other</span></span><br><span class="line"></span><br><span class="line">	v := Wrapper&#123;</span><br><span class="line">		name: <span class="string">"wrapper"</span>,</span><br><span class="line">		Base: Base&#123;</span><br><span class="line">			name: <span class="string">"base"</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(v.name)      <span class="comment">// wrapper</span></span><br><span class="line">	fmt.Println(v.Base.name) <span class="comment">// base</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -482,6 +485,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/01/26/go-talk-interface/" rel="prev" title="go杂谈--interface">
+                go杂谈--interface <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -560,7 +567,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-count">13</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -616,7 +623,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">9</span>
+                      
+                    
+                    <span class="site-state-item-count">10</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>

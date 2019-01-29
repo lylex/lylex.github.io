@@ -108,25 +108,25 @@
 
 
 
-  <meta name="description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
-<meta name="keywords" content="C++">
+  <meta name="description" content="Go语言号称是“面向接口编程”的语言，interface就是那个神奇的接口，因此，相信学习的Go的人都会重视这个概念。 本文不打算一一详细说interface的所有的用法和概念，只打算挑一些自己认为的重点难点和容易出现坑的地方来说一说。 动态类型和静态类型所谓静态类型是指编译阶段就可以知道的类型，go是一个静态语言，理论上没有什么类型是编译期间不可知的。interface其实也是一种内置类型，既然">
+<meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
-<meta property="og:title" content="C++原子操作">
-<meta property="og:url" content="http://yoursite.com/2018/08/02/cpp-atomic-functions/index.html">
+<meta property="og:title" content="go杂谈--interface">
+<meta property="og:url" content="http://yoursite.com/2019/01/26/go-talk-interface/index.html">
 <meta property="og:site_name" content="lylex&#39;s humble Home">
-<meta property="og:description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
+<meta property="og:description" content="Go语言号称是“面向接口编程”的语言，interface就是那个神奇的接口，因此，相信学习的Go的人都会重视这个概念。 本文不打算一一详细说interface的所有的用法和概念，只打算挑一些自己认为的重点难点和容易出现坑的地方来说一说。 动态类型和静态类型所谓静态类型是指编译阶段就可以知道的类型，go是一个静态语言，理论上没有什么类型是编译期间不可知的。interface其实也是一种内置类型，既然">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-12-26T15:21:37.671Z">
+<meta property="og:updated_time" content="2019-01-27T09:46:38.780Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="C++原子操作">
-<meta name="twitter:description" content="在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数count++这个简单的操作，你能保证它是原子的嘛？显然不能的。或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看">
+<meta name="twitter:title" content="go杂谈--interface">
+<meta name="twitter:description" content="Go语言号称是“面向接口编程”的语言，interface就是那个神奇的接口，因此，相信学习的Go的人都会重视这个概念。 本文不打算一一详细说interface的所有的用法和概念，只打算挑一些自己认为的重点难点和容易出现坑的地方来说一说。 动态类型和静态类型所谓静态类型是指编译阶段就可以知道的类型，go是一个静态语言，理论上没有什么类型是编译期间不可知的。interface其实也是一种内置类型，既然">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/08/02/cpp-atomic-functions/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/01/26/go-talk-interface/"/>
 
 
 
@@ -136,7 +136,7 @@
   };
 </script>
 
-  <title>C++原子操作 | lylex's humble Home</title>
+  <title>go杂谈--interface | lylex's humble Home</title>
   
 
 
@@ -305,7 +305,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/02/cpp-atomic-functions/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/26/go-talk-interface/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="lylex">
@@ -322,7 +322,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">C++原子操作
+          <h1 class="post-title" itemprop="name headline">go杂谈--interface
               
             
           </h1>
@@ -347,7 +347,7 @@
                 
               
 
-              <time title="Created: 2018-08-02 02:41:20" itemprop="dateCreated datePublished" datetime="2018-08-02T02:41:20-06:00">2018-08-02</time>
+              <time title="Created: 2019-01-26 04:26:01" itemprop="dateCreated datePublished" datetime="2019-01-26T04:26:01-07:00">2019-01-26</time>
             
 
             
@@ -364,7 +364,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-12-26 08:21:37" itemprop="dateModified" datetime="2018-12-26T08:21:37-07:00">2018-12-26</time>
+                <time title="Modified: 2019-01-27 02:46:38" itemprop="dateModified" datetime="2019-01-27T02:46:38-07:00">2019-01-27</time>
               
             
           </span>
@@ -381,7 +381,7 @@
                 <span class="post-meta-item-text">In</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a></span>
 
                 
                 
@@ -415,23 +415,18 @@
       
 
       
-        <p>在一般的C++程序中，通篇看，没有多少常见的操作是原子操作的。一般的逻辑处理当然没有问题，可是当涉及多线程的时候，就不安全了，例如访问计数<code>count++</code>这个简单的操作，你能保证它是原子的嘛？显然不能的。<br>或许你会想到，使用锁啊。这是能解决问题，不过其性能可想而知。<br>好在C++内置了一系列的基础计算函数，确保是原子的，这里头涉及了一些处理器相关的知识或技术，我们且不去深究了，我们来从使用者的角度，来看看他们的定义和用法吧。</p>
-<h1 id="n-式"><a href="#n-式" class="headerlink" title="n++式"></a>n++式</h1><p>这类函数对传入指针指定的内存进行数值操作，操作完将数值填入指针指向内存，但返回指针指向的内存的原始值，就像我们经常遇到的<code>n++</code>一样，n加一了，最终返回加一前的n。具体函数列表如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type __sync_fetch_and_add (type *ptr, type value, ...)  <span class="comment">// +</span></span><br><span class="line">type __sync_fetch_and_sub (type *ptr, type value, ...)  <span class="comment">// -</span></span><br><span class="line">type __sync_fetch_and_or (type *ptr, type value, ...)   <span class="comment">// |</span></span><br><span class="line">type __sync_fetch_and_and (type *ptr, type value, ...)  <span class="comment">// &amp;</span></span><br><span class="line">type __sync_fetch_and_xor (type *ptr, type value, ...)  <span class="comment">// ^</span></span><br><span class="line">type __sync_fetch_and_nand (type *ptr, type value, ...) <span class="comment">// (~m)^n</span></span><br></pre></td></tr></table></figure>
-<p>就拿<code>__sync_fetch_and_add</code>举例吧，这个相当于如下代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tmp = *ptr;</span><br><span class="line">*ptr += value;</span><br><span class="line"><span class="keyword">return</span> tmp;</span><br></pre></td></tr></table></figure>
-<p>举个实际使用的例子吧，也拿<code>__sync_fetch_and_add</code>说事，其他也差不多了：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> n = <span class="number">6</span>;</span><br><span class="line">  <span class="keyword">auto</span> x = __sync_fetch_and_add(&amp;n, <span class="number">1</span>);</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; x &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// 输出 6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="n式"><a href="#n式" class="headerlink" title="++n式"></a>++n式</h1><p>同样的，这样的函数就对应<code>++n</code>这种形式，即每次操作完了，返回操作后的值。列表如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type __sync_add_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_sub_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_or_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_and_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_xor_and_fetch (type *ptr, type value, ...)</span><br><span class="line">type __sync_nand_and_fetch (type *ptr, type value, ...)</span><br></pre></td></tr></table></figure>
-<p>同样拿最简单的<code>__sync_add_and_fetch</code>举例子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> n = <span class="number">6</span>;</span><br><span class="line">  <span class="keyword">auto</span> x = __sync_add_and_fetch(&amp;n, <span class="number">1</span>);</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; x &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// 输出 7</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="Compare-and-Swap"><a href="#Compare-and-Swap" class="headerlink" title="Compare-and-Swap"></a>Compare-and-Swap</h1><p>这个对应于一个需求，查看某个值有没有被改过，改过就算了，没有改过的话，就来修改下它吧。列表如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> __sync_bool_compare_and_swap (type *ptr, type oldval type newval, ...)</span><br><span class="line">type __sync_val_compare_and_swap (type *ptr, type oldval type newval, ...)</span><br></pre></td></tr></table></figure>
-<p>都是比较ptr对应的值是不是跟oldval相等，如果相等，那么就给<em>ptr写入newval，区别就是bool版本是newval成功写入了就返回true，而type版本返回</em>ptr操作前的值。</p>
-<h1 id="Memory-barrier"><a href="#Memory-barrier" class="headerlink" title="Memory barrier"></a>Memory barrier</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">__sync_synchronize (...) <span class="comment">// 获得一个full memory barrier.</span></span><br><span class="line"></span><br><span class="line">type __sync_lock_test_and_set (type *ptr, type value, ...) <span class="comment">// 将value写到*ptr，返回写之前的*ptr，获得一个acquire barrier</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> __sync_lock_release (type *ptr, ...) <span class="comment">// 用于释放__sync_lock_test_and_set加的锁，并将*ptr全部写0，获得一个release barrier</span></span><br></pre></td></tr></table></figure>
-<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>以上原子操作只能一次更新或读取一个内存单元，如果涉及多个内存单元一起修改的时候，就只能加锁了，这些原子操作爱莫能助了。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>  <a href="http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html" target="_blank" rel="noopener">http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html</a></p>
+        <p>Go语言号称是“面向接口编程”的语言，interface就是那个神奇的接口，因此，相信学习的Go的人都会重视这个概念。</p>
+<p>本文不打算一一详细说interface的所有的用法和概念，只打算挑一些自己认为的重点难点和容易出现坑的地方来说一说。</p>
+<h1 id="动态类型和静态类型"><a href="#动态类型和静态类型" class="headerlink" title="动态类型和静态类型"></a>动态类型和静态类型</h1><p>所谓静态类型是指编译阶段就可以知道的类型，go是一个静态语言，理论上没有什么类型是编译期间不可知的。interface其实也是一种内置类型，既然如此，它也是一种静态类型，这个类型就是inerface类型，与int，string啥的，没有本质区别。这个就是它的静态类型。</p>
+<p>既然是静态语言，一切都是编译阶段可知的，（事实上，go是有函数表的，并且会在运行时比较，这个机制等到实现部分再说吧）,那为啥要有所谓动态类型呢？这个其实是一个逻辑概念，针对interface本身而言的。</p>
+<p>interface有个duck type的属性，任何一个结构，只要实现了它所定义的那些方法，那么就可以说这个结构体实现了这个interface，然后就可以把这个结构体赋值给这个interface的实例。不同的结构体自然可以类型不一样，都赋值给了同样的interface实例，是不是感觉上是这个interface的实例类型在动态变化呢？看下的程序：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> I <span class="keyword">interface</span> &#123;</span><br><span class="line">    M()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> T1 <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(T1)</span> <span class="title">M</span><span class="params">()</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> T2 <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(T2)</span> <span class="title">M</span><span class="params">()</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> i I = T1&#123;&#125;</span><br><span class="line">    i = T2&#123;&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(reflect.TypeOf(i)) <span class="comment">// main.T2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面可以看出，T1和T2是两个不同的结构体，他们都实现了interface I，定义了一个I的实例i，那么i的静态类型就是interface，那么就可以把T1和T2的实例赋值给i了，那么此时，这个i的动态类型就是T1或者T2。</p>
+<p>获取这个动态类型可以用reflect.TypeOf(i)来进行。</p>
+<h1 id="接口的nil值"><a href="#接口的nil值" class="headerlink" title="接口的nil值"></a>接口的nil值</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> i I</span><br><span class="line">fmt.Println(i == <span class="literal">nil</span>) <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> t *T1</span><br><span class="line">fmt.Println(t == <span class="literal">nil</span>) <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">i = t</span><br><span class="line">fmt.Println(i == <span class="literal">nil</span>) <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+<p>这个例子中，可以看出，定义i为接口I的实例，未经显式初始化的是其零值，所以i一开始是nil，t是<em>T1的零值，它也是nil，将t赋值给i后，i就是有值了，这个接口实例被初始化成了一个</em>T1类型的接口，它就不是nil了，虽然它的值是一个nil指针，不过不管，此时，它的动态类型和动态值都有值了。</p>
+<h1 id="内部实现"><a href="#内部实现" class="headerlink" title="内部实现"></a>内部实现</h1><p>(TBD)</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://medium.com/golangspec/interfaces-in-go-part-i-4ae53a97479c" target="_blank" rel="noopener">interfaces in go</a><br><a href="https://research.swtch.com/interfaces" target="_blank" rel="noopener">Go Data Structures: Interfaces</a></p>
 
       
     </div>
@@ -463,7 +458,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/C/" rel="tag"># C++</a>
+            <a href="/tags/Golang/" rel="tag"># Golang</a>
           
         </div>
       
@@ -476,8 +471,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/26/google-cpp-style/" rel="next" title="《Google C++风格指南》读书笔记">
-                <i class="fa fa-chevron-left"></i> 《Google C++风格指南》读书笔记
+              <a href="/2019/01/24/go-talk-stuct/" rel="next" title="go杂谈--struct">
+                <i class="fa fa-chevron-left"></i> go杂谈--struct
               </a>
             
           </div>
@@ -486,8 +481,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/08/09/cpp-template/" rel="prev" title="从一段代码来看C++模板">
-                从一段代码来看C++模板 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/01/28/join-in-sql/" rel="prev" title="关于SQL中的JOIN">
+                关于SQL中的JOIN <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -689,7 +684,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#n-式"><span class="nav-number">1.</span> <span class="nav-text">n++式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#n式"><span class="nav-number">2.</span> <span class="nav-text">++n式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Compare-and-Swap"><span class="nav-number">3.</span> <span class="nav-text">Compare-and-Swap</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Memory-barrier"><span class="nav-number">4.</span> <span class="nav-text">Memory barrier</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#动态类型和静态类型"><span class="nav-number">1.</span> <span class="nav-text">动态类型和静态类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#接口的nil值"><span class="nav-number">2.</span> <span class="nav-text">接口的nil值</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内部实现"><span class="nav-number">3.</span> <span class="nav-text">内部实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
