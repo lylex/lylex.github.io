@@ -108,25 +108,25 @@
 
 
 
-  <meta name="description" content="刚同事问我关于SQL中的JOIN的知识，我回答地不严谨，故而，在此一本正经地整理记录一遍吧，结合一个实例，以期把简单的事说透彻吧。 首先我们来说一个例子，一会我们会用到的，假设我们在给小朋友们分零食，按照他们的岁数准备的，不能弄错： 123456789101112131415161718lylex=# select * from Person; personid | name | age-----">
-<meta name="keywords" content="database">
+  <meta name="description" content="defer应该是go中比较特殊的一个关键字了，其他的编程语言还真没见过这个关键字的。这个关键字使用起来非常方便，以栈序的方式，将所要做的操作延后处理，特别适用于资源回收等应用场景，不可谓不赞。但是呢，这个defer还是有个小小的坑的，下面我们就来看看一个例子： 1234567891011121314func f() (r int) &amp;#123;	t := 5	defer func() &amp;#123;">
+<meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
-<meta property="og:title" content="关于SQL中的JOIN">
-<meta property="og:url" content="http://yoursite.com/2019/01/28/join-in-sql/index.html">
+<meta property="og:title" content="go杂谈--defer">
+<meta property="og:url" content="http://yoursite.com/2019/01/31/go-talk-defer/index.html">
 <meta property="og:site_name" content="轻舟">
-<meta property="og:description" content="刚同事问我关于SQL中的JOIN的知识，我回答地不严谨，故而，在此一本正经地整理记录一遍吧，结合一个实例，以期把简单的事说透彻吧。 首先我们来说一个例子，一会我们会用到的，假设我们在给小朋友们分零食，按照他们的岁数准备的，不能弄错： 123456789101112131415161718lylex=# select * from Person; personid | name | age-----">
+<meta property="og:description" content="defer应该是go中比较特殊的一个关键字了，其他的编程语言还真没见过这个关键字的。这个关键字使用起来非常方便，以栈序的方式，将所要做的操作延后处理，特别适用于资源回收等应用场景，不可谓不赞。但是呢，这个defer还是有个小小的坑的，下面我们就来看看一个例子： 1234567891011121314func f() (r int) &amp;#123;	t := 5	defer func() &amp;#123;">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-29T03:44:01.521Z">
+<meta property="og:updated_time" content="2019-01-31T14:26:20.008Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="关于SQL中的JOIN">
-<meta name="twitter:description" content="刚同事问我关于SQL中的JOIN的知识，我回答地不严谨，故而，在此一本正经地整理记录一遍吧，结合一个实例，以期把简单的事说透彻吧。 首先我们来说一个例子，一会我们会用到的，假设我们在给小朋友们分零食，按照他们的岁数准备的，不能弄错： 123456789101112131415161718lylex=# select * from Person; personid | name | age-----">
+<meta name="twitter:title" content="go杂谈--defer">
+<meta name="twitter:description" content="defer应该是go中比较特殊的一个关键字了，其他的编程语言还真没见过这个关键字的。这个关键字使用起来非常方便，以栈序的方式，将所要做的操作延后处理，特别适用于资源回收等应用场景，不可谓不赞。但是呢，这个defer还是有个小小的坑的，下面我们就来看看一个例子： 1234567891011121314func f() (r int) &amp;#123;	t := 5	defer func() &amp;#123;">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/01/28/join-in-sql/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/01/31/go-talk-defer/"/>
 
 
 
@@ -136,7 +136,7 @@
   };
 </script>
 
-  <title>关于SQL中的JOIN | 轻舟</title>
+  <title>go杂谈--defer | 轻舟</title>
   
 
 
@@ -305,7 +305,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/28/join-in-sql/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/31/go-talk-defer/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="lylex">
@@ -322,7 +322,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">关于SQL中的JOIN
+          <h1 class="post-title" itemprop="name headline">go杂谈--defer
               
             
           </h1>
@@ -347,7 +347,7 @@
                 
               
 
-              <time title="Created: 2019-01-28 19:47:57 / Modified: 20:44:01" itemprop="dateCreated datePublished" datetime="2019-01-28T19:47:57-07:00">2019-01-28</time>
+              <time title="Created: 2019-01-31 05:38:16 / Modified: 07:26:20" itemprop="dateCreated datePublished" datetime="2019-01-31T05:38:16-07:00">2019-01-31</time>
             
 
             
@@ -369,7 +369,7 @@
                 <span class="post-meta-item-text">In</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/database/" itemprop="url" rel="index"><span itemprop="name">database</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a></span>
 
                 
                 
@@ -403,22 +403,22 @@
       
 
       
-        <p>刚同事问我关于SQL中的JOIN的知识，我回答地不严谨，故而，在此一本正经地整理记录一遍吧，结合一个实例，以期把简单的事说透彻吧。</p>
-<p>首先我们来说一个例子，一会我们会用到的，假设我们在给小朋友们分零食，按照他们的岁数准备的，不能弄错：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">lylex=# select * from Person;</span><br><span class="line"> personid | name | age</span><br><span class="line"><span class="comment">----------+------+-----</span></span><br><span class="line">        1 | tom  |   5</span><br><span class="line">        2 | jim  |   6</span><br><span class="line">        3 | ming |   7</span><br><span class="line">        4 | tony |   8</span><br><span class="line">        5 | lily |   7</span><br><span class="line">(5 rows)</span><br><span class="line"></span><br><span class="line">lylex=# select * from snack;</span><br><span class="line"> id | targetage |    name</span><br><span class="line"><span class="comment">----+-----------+------------</span></span><br><span class="line">  1 |         7 | qqSuger</span><br><span class="line">  2 |         8 | bigApple</span><br><span class="line">  3 |         9 | dryNoddles</span><br><span class="line">  4 |        10 | jumpSuger</span><br><span class="line">(4 rows)</span><br></pre></td></tr></table></figure>
-<p>可以看到有五个小朋友，他们分别是56787岁，而我们的零食呢，只是给7岁，8岁，9岁，10岁的小朋友准备的，6岁及以下的另有安排。<br>那好，我们就来看看，不同的JOIN方法，得到的什么结果呢？</p>
-<h1 id="INNER-JOIN"><a href="#INNER-JOIN" class="headerlink" title="INNER JOIN"></a>INNER JOIN</h1><p>事实上，INNER JOIN是求左右两个表的交集，其余部分都剔除，它是Postgres的default的JOIN值，也就是说INNER JOIN可以写成JOIN，那么我们来看看，INNER JOIN后的结果是什么：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">lylex=# select * from Person join snack on Person.age = snack.targetage;</span><br><span class="line"> personid | name | age | id | targetage |   name</span><br><span class="line">----------+------+-----+----+-----------+----------</span><br><span class="line">        3 | ming |   7 |  1 |         7 | qqSuger</span><br><span class="line">        4 | tony |   8 |  2 |         8 | bigApple</span><br><span class="line">        5 | lily |   7 |  1 |         7 | qqSuger</span><br><span class="line">(3 rows)</span><br></pre></td></tr></table></figure>
-<p>以上可以看到，岁数小的两个小朋友就被剔除了，然后适合9岁和10岁的零食也被剔除了，剩下的就是符合JOIN点<code>Person.age = snack.targetage</code>的交集了。</p>
-<h1 id="OUTER-JOIN"><a href="#OUTER-JOIN" class="headerlink" title="OUTER JOIN"></a>OUTER JOIN</h1><p>OUTER JOIN顾名思义，就是向外JOIN，也就是以扩大为目的的。至于如何扩大，跟谁比是扩大的，又衍生除了LEFT OUTER JOIN，RIGHT OUTER JOIN和FULL OUTER JOIN，接下来我们就来看看各自是怎么样的。</p>
-<h2 id="LEFT-OUTER-JOIN"><a href="#LEFT-OUTER-JOIN" class="headerlink" title="LEFT OUTER JOIN"></a>LEFT OUTER JOIN</h2><p>LEFT OUTER JOIN表示以左边的为基准，进行扩展。左边的行列维持不变，右边的符合JOIN点的列才收编进来，且看：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">lylex=# select * from Person left outer join snack on Person.age = snack.targetage;</span><br><span class="line"> personid | name | age | id | targetage |   name</span><br><span class="line">----------+------+-----+----+-----------+----------</span><br><span class="line">        1 | tom  |   5 |    |           |</span><br><span class="line">        2 | jim  |   6 |    |           |</span><br><span class="line">        3 | ming |   7 |  1 |         7 | qqSuger</span><br><span class="line">        4 | tony |   8 |  2 |         8 | bigApple</span><br><span class="line">        5 | lily |   7 |  1 |         7 | qqSuger</span><br><span class="line">(5 rows)</span><br></pre></td></tr></table></figure>
-<p>看到了吧，Person中5个小孩，结果就是5行，snack中，符合这个<code>Person.age = snack.targetage;</code>的拉进来，其余的都不要，宁可5岁的和6岁的空着。</p>
-<h2 id="RIGHT-OUTER-JOIN"><a href="#RIGHT-OUTER-JOIN" class="headerlink" title="RIGHT OUTER JOIN"></a>RIGHT OUTER JOIN</h2><p>与LEFT OUTER JOIN相对，RIGHT OUTER JOIN是以右边的为基准进行收编：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">lylex=# select * from Person right outer join snack on Person.age = snack.targetage;</span><br><span class="line"> personid | name | age | id | targetage |    name</span><br><span class="line">----------+------+-----+----+-----------+------------</span><br><span class="line">        5 | lily |   7 |  1 |         7 | qqSuger</span><br><span class="line">        3 | ming |   7 |  1 |         7 | qqSuger</span><br><span class="line">        4 | tony |   8 |  2 |         8 | bigApple</span><br><span class="line">          |      |     |  3 |         9 | dryNoddles</span><br><span class="line">          |      |     |  4 |        10 | jumpSuger</span><br><span class="line">(5 rows)</span><br></pre></td></tr></table></figure>
-<p>以snack为基准，4行已经有了，不管Person中能不能匹配到，然后到Person中进行扫描，一行一行看，符合JOIN点的都往里面填，突然发现lily和ming都符合7这个JOIN点，怎么办呢？不要紧，把7这个JOIN点右边表所在的行复制一遍，然后往里面填，然后qqSuger这样就有两行值了。</p>
-<h2 id="FULL-OUTER-JOIN"><a href="#FULL-OUTER-JOIN" class="headerlink" title="FULL OUTER JOIN"></a>FULL OUTER JOIN</h2><p>以上都是以一边为基准，那么有没有两遍都是参照基准的JOIN方法呢？当然是有的，那就是FULL OUTER JOIN，就是要保证左边和右边都会在JOIN的结果中出现，如果不符合JOIN点的，留空就行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">lylex=# select * from Person full outer join snack on Person.age = snack.targetage;</span><br><span class="line"> personid | name | age | id | targetage |    name</span><br><span class="line">----------+------+-----+----+-----------+------------</span><br><span class="line">        1 | tom  |   5 |    |           |</span><br><span class="line">        2 | jim  |   6 |    |           |</span><br><span class="line">        3 | ming |   7 |  1 |         7 | qqSuger</span><br><span class="line">        4 | tony |   8 |  2 |         8 | bigApple</span><br><span class="line">        5 | lily |   7 |  1 |         7 | qqSuger</span><br><span class="line">          |      |     |  4 |        10 | jumpSuger</span><br><span class="line">          |      |     |  3 |         9 | dryNoddles</span><br><span class="line">(7 rows)</span><br></pre></td></tr></table></figure>
+        <p>defer应该是go中比较特殊的一个关键字了，其他的编程语言还真没见过这个关键字的。这个关键字使用起来非常方便，以栈序的方式，将所要做的操作延后处理，特别适用于资源回收等应用场景，不可谓不赞。但是呢，这个defer还是有个小小的坑的，下面我们就来看看一个例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">()</span> <span class="params">(r <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	t := <span class="number">5</span></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		t = t + <span class="number">9</span></span><br><span class="line">		fmt.Printf(<span class="string">"in the defer: t = %d\n"</span>, t)</span><br><span class="line">	&#125;()</span><br><span class="line">	t++</span><br><span class="line">	fmt.Printf(<span class="string">"out of the defer: t = %d\n"</span>, t)</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(f())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>想想，这里的输出应该是什么？</p>
+<p>输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">out of the defer: t = 6</span><br><span class="line">in the defer: t = 15</span><br><span class="line">6</span><br></pre></td></tr></table></figure>
+<p>不知道你想对了没有。这里面门道比较深，如果你想知道真真正正的内幕，你可以执行<code>go build -gcflags -S main.go</code>来看它生成出来的汇编代码，还可以参照<a href="https://lrita.github.io/2017/12/12/golang-asm/" target="_blank" rel="noopener">这篇</a>关于golang汇编的帮助。如果还是读不懂，建议还是不要读了，咱们一起来往下看吧。</p>
+<p>首先，先输出“out of the defer”，后输出“in the defer”，相信这个应该没有问题吧。所有的在<code>defer</code>block中的内容都是延后执行的，等这个函数即将退出前才会执行的，因此，函数走到defer所在的块时，跳过，先执行了“out of…”.</p>
+<p>然后“out of the defer”这行为什么输出6呢？<br>其实，既然defer那块是最后才执行的，那么，执行到这句的代码应该是：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">t := <span class="number">5</span></span><br><span class="line">t++</span><br><span class="line">fmt.Printf(<span class="string">"out of the defer: t = %d\n"</span>, t)</span><br></pre></td></tr></table></figure></p>
+<p>就顺利成章地得到了6。</p>
+<p>那“in the defer”是部分的结果是什么意思呢？其实这个更不难理解，既然是最后执行，那就是最后t++成了6，在那个defer的块中，自然就是成了15了。</p>
+<p>最后，我们来看看函数的返回结果为什么是6.<br>其实啊，go中的return本来就不是一个原子操作，如果有这句话，<code>return 8</code>，实际上这么执行的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">internal_ret = 8</span><br><span class="line">return</span><br></pre></td></tr></table></figure>
+<p>如果前面还有defer的话，这个defer语句是插在这个中间执行的，也就是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">internal_ret = 8</span><br><span class="line">runtime.deferreturn // 调用defer的block</span><br><span class="line">return</span><br></pre></td></tr></table></figure>
+<p>那么回到我们的例子，实际上就是这样了：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">t := <span class="number">5</span></span><br><span class="line">t++</span><br><span class="line">fmt.Printf(<span class="string">"out of the defer: t = %d\n"</span>, t)</span><br><span class="line"></span><br><span class="line">r = t</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">	t = t + <span class="number">9</span></span><br><span class="line">	fmt.Printf(<span class="string">"in the defer: t = %d\n"</span>, t)</span><br><span class="line">&#125;()</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span></span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -450,7 +450,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/database/" rel="tag"># database</a>
+            <a href="/tags/Golang/" rel="tag"># Golang</a>
           
         </div>
       
@@ -463,8 +463,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/01/26/go-talk-interface/" rel="next" title="go杂谈--interface">
-                <i class="fa fa-chevron-left"></i> go杂谈--interface
+              <a href="/2019/01/28/join-in-sql/" rel="next" title="关于SQL中的JOIN">
+                <i class="fa fa-chevron-left"></i> 关于SQL中的JOIN
               </a>
             
           </div>
@@ -472,10 +472,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/01/31/go-talk-defer/" rel="prev" title="go杂谈--defer">
-                go杂谈--defer <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -529,17 +525,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            Table of Contents
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            Overview
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -666,22 +653,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#INNER-JOIN"><span class="nav-number">1.</span> <span class="nav-text">INNER JOIN</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#OUTER-JOIN"><span class="nav-number">2.</span> <span class="nav-text">OUTER JOIN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LEFT-OUTER-JOIN"><span class="nav-number">2.1.</span> <span class="nav-text">LEFT OUTER JOIN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RIGHT-OUTER-JOIN"><span class="nav-number">2.2.</span> <span class="nav-text">RIGHT OUTER JOIN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FULL-OUTER-JOIN"><span class="nav-number">2.3.</span> <span class="nav-text">FULL OUTER JOIN</span></a></li></ol></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
